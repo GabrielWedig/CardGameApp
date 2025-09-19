@@ -1,25 +1,22 @@
-import Image from 'next/image';
-import { COUNTRIES } from './countries';
+import { Card, CardContent } from '@/components/ui/card';
+import Link from 'next/link';
+import { GAMES } from './backend';
 
-const URL_PREFIX =
-  'https://www.geoguessr.com/images/resize:fit:0:256/gravity:ce/plain/seterra/game-area/';
-
-export default function Home() {
+const Home = () => {
   return (
-    <>
-      <main className="flex justify-center items-center min-h-screen">
-        <h1>Advinhe a bandeira!</h1>
-        {COUNTRIES.map((country) => (
-          <div key={country.id}>
-            <Image
-              src={`${URL_PREFIX}${country.image}`}
-              alt="Bandeira"
-              width={400}
-              height={300}
-            />
-          </div>
+    <section className="py-10">
+      <h1 className="mb-5 text-3xl font-semibold">Jogos</h1>
+      <div className="flex flex-col gap-2">
+        {GAMES.map((game) => (
+          <Link key={game.id} href={`/game/${game.id}`}>
+            <Card>
+              <CardContent>{game.name}</CardContent>
+            </Card>
+          </Link>
         ))}
-      </main>
-    </>
+      </div>
+    </section>
   );
-}
+};
+
+export default Home;
