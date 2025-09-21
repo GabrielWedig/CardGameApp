@@ -1,11 +1,23 @@
 'use client';
 
-import { COUNTRIES, GAMES, URL_PREFIX } from '@/app/backend';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import axios from 'axios';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
+
+interface Game {
+  id: number;
+  name: string;
+  cards: Card[];
+}
+
+interface Card {
+  id: number;
+  answer: string;
+  image_path: string;
+}
 
 const normalize = (str: string) => {
   return str
@@ -15,73 +27,61 @@ const normalize = (str: string) => {
     .toLowerCase();
 };
 
-const random = (size: number) => Math.floor(Math.random() * size);
-
 const Game = () => {
   const params = useParams();
   const id = params?.id as string;
 
-  const gameCountries =
-    GAMES.find((game) => game.id === parseInt(id))?.countries ?? [];
-
-  const [countries, setCountries] = useState<number[]>(gameCountries);
-  const [count, setCount] = useState(1);
-  const [answer, setAnswer] = useState('');
-  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+  const [game, setGame] = useState<Game>();
+  const [answer, setAnswer] = useState<string>('');
+  const [cards, setCards] = useState<Card[]>([]);
 
   useEffect(() => {
-    if (countries.length > 0) {
-      setCurrentIndex(random(countries.length));
-    }
-  }, [countries]);
+    axios
+      .get(`http://localhost:3000/games/${id}`)
+      .then((res) => {
+        setGame(res.data);
+        setCards(res.data.cards);
+      })
+      .catch((err) => console.error('Erro ao retornar jogo:', err));
+  }, [id]);
 
-  const country =
-    currentIndex !== null ? COUNTRIES[countries[currentIndex]] : null;
+  const currentCard = cards[0];
 
   const handleAnswer = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!country) return;
 
-    if (normalize(answer) === normalize(country.name)) {
-      const newCountries = countries.filter((_, idx) => idx !== currentIndex);
-      setCountries(newCountries);
-      setCount((c) => c + 1);
+    if (normalize(answer) === normalize(currentCard?.answer ?? '')) {
       setAnswer('');
+      setCards(cards.slice(1));
+      return;
+    }
+
+    const sameCards = cards.filter((c) => c.id === currentCard.id);
+
+    if (sameCards.length < 2) {
+      setCards((cards) => [...cards, currentCard]);
     }
   };
 
   return (
-    <>
-      {countries.length > 0 && country && (
-        <section className="flex flex-col justify-center items-center gap-20 py-10">
-          <h1 className="text-3xl font-semibold">Advinhe a bandeira!</h1>
-          <span>
-            {count} / {gameCountries.length}
-          </span>
-          <Image
-            src={`${URL_PREFIX}${country.image}`}
-            alt="Bandeira"
-            className="shadow-xl/20"
-            width={225}
-            height={150}
-            priority
-          />
-          <form className="flex gap-3" onSubmit={handleAnswer}>
-            <Input
-              className="w-[200px]"
-              onChange={(e) => setAnswer(e.target.value)}
-              value={answer}
-            />
-            <Button type="submit">Responder</Button>
-          </form>
-        </section>
-      )}
-      {countries.length === 0 && (
-        <h2 className="text-xl font-semibold">
-          Parabéns! Você acertou todas as bandeiras!
-        </h2>
-      )}
-    </>
+    <section className="flex flex-col justify-center items-center gap-20 py-10">
+      <Image
+        src={currentCard?.image_path ?? ''}
+        alt="Bandeira"
+        className="shadow-xl/20"
+        width={225}
+        height={150}
+        priority
+      />
+      <form className="flex gap-3" onSubmit={handleAnswer}>
+        <Input
+          className="w-[200px]"
+          onChange={(e) => setAnswer(e.target.value)}
+          value={answer}
+        />
+        <Button type="submit">Responder</Button>
+      </form>
+    </section>
   );
 };
 
