@@ -1,21 +1,22 @@
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
-import axios from 'axios';
+import apiClient from '@/services/apiClient';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 interface Game {
   id: number;
   name: string;
+  countCards: number;
 }
 
 const Home = () => {
   const [games, setGames] = useState<Game[]>();
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:3000/games`)
+    apiClient
+      .get('games')
       .then((res) => setGames(res.data))
       .catch((err) => console.error('Erro ao retornar jogos:', err));
   }, []);
@@ -27,7 +28,10 @@ const Home = () => {
         {games?.map((game) => (
           <Link key={game.id} href={`/game/${game.id}`}>
             <Card>
-              <CardContent>{game.name}</CardContent>
+              <CardContent className="flex justify-between">
+                <p>{game.name}</p>
+                <p>{game.countCards}</p>
+              </CardContent>
             </Card>
           </Link>
         ))}
