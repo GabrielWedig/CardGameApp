@@ -6,26 +6,9 @@ import apiClient from '@/services/apiClient';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-
-interface Game {
-  id: number;
-  name: string;
-  cards: Card[];
-}
-
-interface Card {
-  id: number;
-  answer: string;
-  image_path: string;
-}
-
-const normalize = (str: string) => {
-  return str
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9]/g, '')
-    .toLowerCase();
-};
+import type { Game } from '@/types/game';
+import { Card } from '@/types/card';
+import { normalize } from '@/lib/utils';
 
 const Game = () => {
   const params = useParams();
@@ -52,7 +35,7 @@ const Game = () => {
   const handleAnswer = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (normalize(answer) === normalize(currentCard?.answer ?? '')) {
+    if (normalize(answer) === normalize(currentCard.answer)) {
       setAnswer('');
       setTip('');
       setCards(cards.slice(1));
@@ -111,9 +94,9 @@ const Game = () => {
           <p>{c.answer}</p>
         </>
       ))} */}
-      {currentCard?.image_path && (
+      {currentCard?.imagePath && (
         <Image
-          src={currentCard.image_path}
+          src={currentCard.imagePath}
           alt="Bandeira"
           className="shadow-xl/20 w-auto h-auto"
           width={225}

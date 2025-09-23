@@ -1,18 +1,14 @@
 'use client';
 
-import { Card, CardContent } from '@/components/ui/card';
+import GameItem from '@/components/ui/game-item';
+import { Input } from '@/components/ui/input';
 import apiClient from '@/services/apiClient';
-import Link from 'next/link';
+import { Game } from '@/types/game';
 import { useEffect, useState } from 'react';
-
-interface Game {
-  id: number;
-  name: string;
-  countCards: number;
-}
 
 const Home = () => {
   const [games, setGames] = useState<Game[]>();
+  const isLogged = true;
 
   useEffect(() => {
     apiClient
@@ -23,17 +19,22 @@ const Home = () => {
 
   return (
     <section className="py-10">
-      <h1 className="mb-5 text-3xl font-semibold">Jogos</h1>
-      <div className="flex flex-col gap-2">
+      <div className="flex gap-10 pb-5">
+        <button>Mais poulares</button>
+        <button>Bem avaliados</button>
+        <button>Novidade</button>
+        {isLogged && <button>Favoritos</button>}
+        {isLogged && <button>Criado por mim</button>}
+        {isLogged && <button>Criado por amigos</button>}
+        <Input
+          placeholder="Busca por nome ou ID"
+          className="w-[300px] ml-auto"
+        />
+      </div>
+
+      <div className="flex flex-col gap-2 py-5">
         {games?.map((game) => (
-          <Link key={game.id} href={`/game/${game.id}`}>
-            <Card>
-              <CardContent className="flex justify-between">
-                <p>{game.name}</p>
-                <p>{game.countCards}</p>
-              </CardContent>
-            </Card>
-          </Link>
+          <GameItem key={game.id} {...game} />
         ))}
       </div>
     </section>
