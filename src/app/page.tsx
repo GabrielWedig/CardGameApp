@@ -1,6 +1,6 @@
 'use client';
 
-import GameItem from '@/components/ui/game-item';
+import GameItem from '@/app/game/[id]/gameItem';
 import { Input } from '@/components/ui/input';
 import apiClient from '@/services/apiClient';
 import { Game } from '@/types/game';

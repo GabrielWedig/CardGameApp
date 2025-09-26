@@ -1,145 +1,106 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { toastError } from '@/lib/toast';
 import apiClient from '@/services/apiClient';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-
-interface FormValues {
-  name: string;
-  password: string;
-  confirmPassword: string;
-  displayName: string;
-  nationalityId: number;
-}
-
-// TODO: organizar melhor
-interface Nationality {
-  id: number;
-  name: string;
-}
+import { useForm } from 'react-hook-form';
+import { RegisterForm, registerSchema } from './schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Nationality } from '@/types/nationality';
+import Input from '@/components/form/input';
+import Select from '@/components/form/select';
+import Form from '@/components/form/form';
+import { useRouter } from 'next/navigation';
 
 const Register = () => {
-  const [formValues, setFormValues] = useState<FormValues>({
-    name: '',
-    password: '',
-    confirmPassword: '',
-    displayName: '',
-    nationalityId: 0,
-  });
+  const router = useRouter();
   const [nationalities, setNationalities] = useState<Nationality[]>([]);
 
   useEffect(() => {
-    apiClient.get('nationalities').then((res) => setNationalities(res.data));
+    apiClient
+      .get('nationalities')
+      .then((res) => setNationalities(res.data))
+      .catch((err) => toastError(err.response?.data?.message));
   }, []);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const { confirmPassword, ...payload } = formValues;
-    await apiClient.post('users', payload);
-    //.then((res) => console.log(res.data.access_token));
+  const form = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const { setError, clearErrors, getValues } = form;
+
+  const setToken = (token: string) => {
+    localStorage.setItem('accessToken', token);
+    router.push('/');
   };
 
-  // TODO: ver como passa query - catchs com toasts - input vermelho
-  const validateName = async (value: string) =>
-    await apiClient.get('user/validate-name').then((res) => res.data.isValid);
+  const onSubmit = async (data: RegisterForm) => {
+    const { confirmPassword, ...payload } = data;
+    await apiClient
+      .post('users', payload)
+      .then((res) => setToken(res.data.accessToken))
+      .catch((err) => toastError(err.response?.data?.message));
+  };
 
-  const paswordMatch =
-    formValues.password &&
-    formValues.confirmPassword &&
-    formValues.password === formValues.confirmPassword;
+  const validateName = async (name: string) =>
+    await apiClient
+      .get(`users/validate-name?name=${name}`)
+      .then((res) =>
+        res.data.isValid
+          ? clearErrors('name')
+          : setError('name', {
+              message: 'Este nome já está em uso',
+            })
+      )
+      .catch((err) => toastError(err.response?.data?.message));
+
+  const macthPassword = (password: string) =>
+    password === getValues('password')
+      ? clearErrors('confirmPassword')
+      : setError('confirmPassword', {
+          message: 'As senhas não coincidem',
+        });
 
   return (
     <section className="flex flex-col justify-center items-center h-full gap-15 -mt-[100px]">
       <h1 className="text-5xl font-semibold">CardGame!</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2 w-[300px]">
-        <div className="flex flex-col">
-          <label>Nome</label>
-          <Input
-            onChange={(e) => {
-              //validateName(e.target.value);
-              setFormValues((values) => ({ ...values, name: e.target.value }));
-            }}
-            value={formValues.name}
-          />
-        </div>
-        <div className="flex flex-col">
-          <label>Senha</label>
-          <Input
-            onChange={(e) =>
-              setFormValues((values) => ({
-                ...values,
-                password: e.target.value,
-              }))
-            }
-            value={formValues.password}
-            type="password"
-          />
-        </div>
-        <div className="flex flex-col">
-          <label>Confime sua senha</label>
-          <Input
-            onChange={(e) =>
-              setFormValues((values) => ({
-                ...values,
-                confirmPassword: e.target.value,
-              }))
-            }
-            value={formValues.confirmPassword}
-            type="password"
-          />
-          {!paswordMatch && <span>As senhas não batem</span>}
-        </div>
-        <div className="flex flex-col">
-          <label>Nome de exibição</label>
-          <Input
-            onChange={(e) =>
-              setFormValues((values) => ({
-                ...values,
-                displayName: e.target.value,
-              }))
-            }
-            value={formValues.displayName}
-          />
-        </div>
-        <div className="flex flex-col">
-          <label>Nacionalidade</label>
-          <Select
-            onValueChange={(value: string) =>
-              setFormValues((values) => ({
-                ...values,
-                nationalityId: Number(value),
-              }))
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione uma nacionalidade" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {nationalities.map((nationality) => (
-                  <SelectItem
-                    key={nationality.id}
-                    value={String(nationality.id)}
-                  >
-                    {nationality.name}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-        <Button type="submit">Cadastre-se</Button>
-      </form>
+      <Form form={form} onSubmit={onSubmit} className="flex flex-col w-[300px]">
+        <Input
+          name="name"
+          label="Nome"
+          placeholder="Digite seu nome único"
+          onChange={validateName}
+        />
+        <Input
+          name="displayName"
+          label="Nome de exibição"
+          placeholder="Digite seu nome"
+        />
+        <Input
+          name="password"
+          label="Senha"
+          placeholder="Digite sua senha"
+          type="password"
+        />
+        <Input
+          name="confirmPassword"
+          label="Confirme sua senha"
+          placeholder="Digite sua senha novamente"
+          type="password"
+          onChange={macthPassword}
+        />
+        <Select
+          name="nationalityId"
+          label="Nacionalidade"
+          options={nationalities.map((n) => ({ value: n.id, label: n.name }))}
+          placeholder="Selecione uma nacionalidade"
+        />
+        <Button type="submit" className="mt-2">
+          Cadastre-se
+        </Button>
+      </Form>
       <div className="flex gap-2">
         <span>Já tem uma conta?</span>
         <Link href={'login'} className="underline">

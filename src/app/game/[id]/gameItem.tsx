@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Card, CardContent } from './card';
+import { Card, CardContent } from '../../../components/ui/card';
 import { Game } from '@/types/game';
 import { Club } from 'lucide-react';
 
