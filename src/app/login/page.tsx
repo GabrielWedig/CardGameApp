@@ -10,9 +10,11 @@ import Input from '@/components/form/input';
 import { LoginForm, loginSchema } from './schema';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useUserContext } from '@/context/userContext';
 
 export default function Login() {
   const router = useRouter();
+  const { setUserData } = useUserContext();
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -21,6 +23,7 @@ export default function Login() {
   const setToken = (token: string) => {
     localStorage.setItem('accessToken', token);
     router.push('/');
+    setUserData();
   };
 
   const onSubmit = async (data: LoginForm) =>

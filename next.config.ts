@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['www.geoguessr.com', '37assets.37signals.com'],
+    domains: ['res.cloudinary.com'],
   },
   reactStrictMode: false,
 };

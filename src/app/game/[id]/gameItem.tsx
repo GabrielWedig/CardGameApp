@@ -5,7 +5,7 @@ import { Club } from 'lucide-react';
 
 const GameItem = (game: Game) => {
   return (
-    <Link key={game.id} href={`/game/${game.id}`}>
+    <Link href={`/game/${game.id}`}>
       <Card>
         <CardContent className="flex justify-between items-center">
           <div className="flex gap-4">

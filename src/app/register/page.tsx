@@ -13,10 +13,13 @@ import Input from '@/components/form/input';
 import Select from '@/components/form/select';
 import Form from '@/components/form/form';
 import { useRouter } from 'next/navigation';
+import { useUserContext } from '@/context/userContext';
 
 const Register = () => {
-  const router = useRouter();
   const [nationalities, setNationalities] = useState<Nationality[]>([]);
+
+  const { setUserData } = useUserContext();
+  const router = useRouter();
 
   useEffect(() => {
     apiClient
@@ -34,6 +37,7 @@ const Register = () => {
   const setToken = (token: string) => {
     localStorage.setItem('accessToken', token);
     router.push('/');
+    setUserData();
   };
 
   const onSubmit = async (data: RegisterForm) => {
