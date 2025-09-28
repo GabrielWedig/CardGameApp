@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { Card, CardContent } from '../../../components/ui/card';
 import { Game } from '@/types/game';
 import { Club } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 const GameItem = (game: Game) => {
   return (

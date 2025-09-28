@@ -1,12 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { BasicUser } from '@/types/user';
+import { User } from '@/types/user';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const UserItem = (user: BasicUser) => {
+const UserItem = (user: User) => {
   return (
-    <Link href={`profile/${user.name}`}>
+    // <Link href={`profile/${user.name}`}>
       <Card>
         <CardContent className="">
           <span>{user.level}</span>
@@ -25,7 +25,7 @@ const UserItem = (user: BasicUser) => {
           {!user.isFriend && <Button>Solicitar amizade</Button>}
         </CardContent>
       </Card>
-    </Link>
+    // </Link>
   );
 };
 
