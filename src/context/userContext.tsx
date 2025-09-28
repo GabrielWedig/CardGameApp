@@ -3,7 +3,7 @@
 import { toastError } from '@/lib/toast';
 import apiClient from '@/services/apiClient';
 import { User } from '@/types/user';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 interface ContextProps {
   user?: User;
@@ -19,6 +19,12 @@ export const UserContext = createContext<ContextProps>({} as ContextProps);
 
 export const UserProvider = ({ children }: ProviderProps) => {
   const [user, setUser] = useState<User>();
+
+  useEffect(() => {
+    if (localStorage.getItem('accessToken')) {
+      setUserData();
+    }
+  }, []);
 
   const setUserData = () =>
     apiClient

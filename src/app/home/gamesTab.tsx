@@ -14,7 +14,7 @@ interface GamesTabProps {
   tab: Tab;
 }
 
-type MineTab = 'favorites' | 'byMe' | 'lastPlayed';
+type MineTab = 'favorites' | 'byMe' | 'lastPlayed' | 'byFriends';
 
 const GamesTab = ({ tab }: GamesTabProps) => {
   const [games, setGames] = useState<Game[]>([]);
@@ -24,8 +24,9 @@ const GamesTab = ({ tab }: GamesTabProps) => {
 
   const mineTabs = [
     { name: 'favorites', label: 'Favoritos' },
-    { name: 'byMe', label: 'Criados por mim' },
     { name: 'lastPlayed', label: 'Últimos jogados' },
+    { name: 'byMe', label: 'Criados por mim' },
+    { name: 'byFriends', label: 'Criados por amigos' },
   ];
 
   const isMineTab = tab === 'mine';
@@ -43,7 +44,7 @@ const GamesTab = ({ tab }: GamesTabProps) => {
 
   return (
     <>
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         {tab === 'mine' && (
           <div className="flex gap-5">
             {mineTabs.map((tb, idx) => (
@@ -56,12 +57,11 @@ const GamesTab = ({ tab }: GamesTabProps) => {
             ))}
           </div>
         )}
-
         <Input
           placeholder="Busca por ID ou nome"
           onChange={(e) => setSearch(e.target.value)}
           value={search}
-          className="w-[300px]"
+          className="w-[300px] ml-auto"
         />
       </div>
       <div className="flex flex-col gap-2">
