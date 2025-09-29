@@ -1,12 +1,13 @@
 import Pagination from '@/components/pagination';
 import TabItem from '@/components/tabItem';
 import { Input } from '@/components/ui/input';
-import { User } from '@/types/user';
+import { SearchUser } from '@/types/user';
 import { useEffect, useState } from 'react';
 import UserItem from './userItem';
 import apiClient from '@/services/apiClient';
 import { useUserContext } from '@/context/userContext';
 import { toastError } from '@/lib/toast';
+import { Paginated } from '@/types/common';
 
 type FriendsTab = 'friends' | 'requests' | 'find';
 
@@ -15,8 +16,8 @@ const FriendsTab = () => {
 
   const [tab, setTab] = useState<FriendsTab>('friends');
   const [search, setSearch] = useState<string>('');
-  const [users, setUsers] = useState<User[]>([]);
-  const [page, setPage] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
+  const [users, setUsers] = useState<Paginated<SearchUser>>();
 
   const tabs = [
     { name: 'friends', label: 'Amigos' },
@@ -25,15 +26,19 @@ const FriendsTab = () => {
   ];
 
   const limit = 50;
+  const isAccepted = tab === 'friends';
+  const findTab = tab === 'find';
+  const urlFilters = `search=${search}&page=${page}&limit=${limit}`;
+  const url = findTab
+    ? `users?${urlFilters}`
+    : `requests?isAccepted=${isAccepted}&${urlFilters}`;
 
   useEffect(() => {
     apiClient
-      .get(
-        `users/${user?.id}?tab=${tab}&search=${search}&page=${page}&limit=${limit}`
-      )
+      .get(url)
       .then((res) => setUsers(res.data))
       .catch((err) => toastError(err.response?.data?.message));
-  }, [tab, search, page, user]);
+  }, [tab, search, page, user, url]);
 
   return (
     <>
@@ -54,13 +59,13 @@ const FriendsTab = () => {
         />
       </div>
       <div className="flex flex-col gap-2">
-        {users.map((user) => (
+        {users?.items.map((user) => (
           <UserItem key={user.id} {...user} />
         ))}
       </div>
       <Pagination
         page={page}
-        qtdPages={20}
+        total={users?.total ?? 0}
         onChange={(number) => setPage(number)}
       />
     </>

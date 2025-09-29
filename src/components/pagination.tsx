@@ -10,15 +10,15 @@ import {
 interface CustomPaginationProps {
   page: number;
   onChange: (page: number) => void;
-  qtdPages: number;
+  total: number;
 }
 
-const Pagination = ({ page, onChange, qtdPages }: CustomPaginationProps) => {
+const Pagination = ({ page, onChange, total }: CustomPaginationProps) => {
   const maxNumbers = 9;
 
   const getPages = () => {
-    if (qtdPages <= maxNumbers) {
-      return Array.from({ length: qtdPages }, (_, i) => i + 1);
+    if (total <= maxNumbers) {
+      return Array.from({ length: total }, (_, i) => i + 1);
     }
 
     if (page <= 4) {
@@ -26,8 +26,8 @@ const Pagination = ({ page, onChange, qtdPages }: CustomPaginationProps) => {
     }
 
     let end = page + (maxNumbers - 5);
-    if (end > qtdPages) {
-      end = qtdPages;
+    if (end > total) {
+      end = total;
     }
 
     let start = end - maxNumbers + 1;
@@ -58,7 +58,7 @@ const Pagination = ({ page, onChange, qtdPages }: CustomPaginationProps) => {
         </PaginationItem>
         <PaginationItem>
           <PaginationNext
-            isDisabled={page === qtdPages}
+            isDisabled={page === total}
             onClick={() => onChange(page + 1)}
           />
         </PaginationItem>

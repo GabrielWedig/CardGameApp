@@ -1,12 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { User } from '@/types/user';
+import { SearchUser } from '@/types/user';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const UserItem = (user: User) => {
+const UserItem = (user: SearchUser) => {
   return (
-    // <Link href={`profile/${user.name}`}>
+    <Link href={`profile/${user.name}`}>
       <Card>
         <CardContent className="">
           <span>{user.level}</span>
@@ -22,10 +22,10 @@ const UserItem = (user: User) => {
             priority
             className="w-auto h-auto rounded-full"
           />
-          {!user.isFriend && <Button>Solicitar amizade</Button>}
+          {!user.requested && <Button>Solicitar amizade</Button>}
         </CardContent>
       </Card>
-    // </Link>
+    </Link>
   );
 };
 

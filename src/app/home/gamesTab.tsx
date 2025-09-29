@@ -71,7 +71,7 @@ const GamesTab = ({ tab }: GamesTabProps) => {
       </div>
       <Pagination
         page={page}
-        qtdPages={20}
+        total={20}
         onChange={(number) => setPage(number)}
       />
     </>
