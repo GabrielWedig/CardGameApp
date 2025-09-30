@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Flags',
+  title: 'CardGame!',
   description: 'Guess the flag!',
 };
 
@@ -32,7 +32,7 @@ export default function RootLayout({
       >
         <UserProvider>
           <Header />
-          <main className="px-50 h-screen">{children}</main>
+          <main className="px-50 h-[calc(100vh-100px)]">{children}</main>
           <Toaster richColors />
         </UserProvider>
       </body>

@@ -11,7 +11,7 @@ const Header = () => {
   const router = useRouter();
 
   return (
-    <header className="px-50 pt-8 pb-5 flex justify-between items-center">
+    <header className="px-50 pt-8 pb-5 flex justify-between items-center h-[100px]">
       <Link href={'/'}>
         <h1 className="text-3xl font-semibold">CardGame!</h1>
       </Link>

@@ -8,6 +8,7 @@ export interface User {
 export interface SearchUser extends User {
   name: string;
   nacionalityPhoto: string;
-  requested?: boolean;
   requestId?: number;
+  isFriend?: boolean;
+  canAnswer?: boolean;
 }

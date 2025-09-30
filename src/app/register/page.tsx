@@ -17,6 +17,7 @@ import { useUserContext } from '@/context/userContext';
 
 const Register = () => {
   const [nationalities, setNationalities] = useState<Nationality[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { setUserData } = useUserContext();
   const router = useRouter();
@@ -41,11 +42,14 @@ const Register = () => {
   };
 
   const onSubmit = async (data: RegisterForm) => {
+    setIsLoading(true);
     const { confirmPassword, ...payload } = data;
+
     await apiClient
       .post('users', payload)
       .then((res) => setToken(res.data.accessToken))
-      .catch((err) => toastError(err.response?.data?.message));
+      .catch((err) => toastError(err.response?.data?.message))
+      .finally(() => setIsLoading(false));
   };
 
   const validateName = async (name: string) =>
@@ -101,7 +105,7 @@ const Register = () => {
           options={nationalities.map((n) => ({ value: n.id, label: n.name }))}
           placeholder="Selecione uma nacionalidade"
         />
-        <Button type="submit" className="mt-2">
+        <Button type="submit" className="mt-2" isLoading={isLoading}>
           Cadastre-se
         </Button>
       </Form>

@@ -11,14 +11,22 @@ interface CustomPaginationProps {
   page: number;
   onChange: (page: number) => void;
   total: number;
+  limit: number;
 }
 
-const Pagination = ({ page, onChange, total }: CustomPaginationProps) => {
+const Pagination = ({
+  page,
+  onChange,
+  total,
+  limit,
+}: CustomPaginationProps) => {
   const maxNumbers = 9;
 
+  const totalPages = Math.ceil(total / limit);
+
   const getPages = () => {
-    if (total <= maxNumbers) {
-      return Array.from({ length: total }, (_, i) => i + 1);
+    if (totalPages <= maxNumbers) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
     if (page <= 4) {
@@ -26,8 +34,8 @@ const Pagination = ({ page, onChange, total }: CustomPaginationProps) => {
     }
 
     let end = page + (maxNumbers - 5);
-    if (end > total) {
-      end = total;
+    if (end > totalPages) {
+      end = totalPages;
     }
 
     let start = end - maxNumbers + 1;
@@ -37,33 +45,34 @@ const Pagination = ({ page, onChange, total }: CustomPaginationProps) => {
   };
 
   return (
-    <PaginationShad>
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            isDisabled={page === 1}
-            onClick={() => onChange(page - 1)}
-          />
-        </PaginationItem>
-        <PaginationItem>
+    totalPages > 0 && (
+      <PaginationShad>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              isDisabled={page === 1}
+              onClick={() => onChange(page - 1)}
+            />
+          </PaginationItem>
           {getPages().map((number) => (
-            <PaginationLink
-              key={number}
-              onClick={() => onChange(number)}
-              isActive={page === number}
-            >
-              {number}
-            </PaginationLink>
+            <PaginationItem key={number}>
+              <PaginationLink
+                onClick={() => onChange(number)}
+                isActive={page === number}
+              >
+                {number}
+              </PaginationLink>
+            </PaginationItem>
           ))}
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationNext
-            isDisabled={page === total}
-            onClick={() => onChange(page + 1)}
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </PaginationShad>
+          <PaginationItem>
+            <PaginationNext
+              isDisabled={page === totalPages}
+              onClick={() => onChange(page + 1)}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </PaginationShad>
+    )
   );
 };
 

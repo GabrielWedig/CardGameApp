@@ -17,15 +17,14 @@ export type Tab =
 
 const Home = () => {
   const { user } = useUserContext();
-
   const [tab, setTab] = useState<Tab>('popular');
 
   const tabs = [
     { name: 'popular', label: 'Mais polulares', public: true },
     { name: 'bestRated', label: 'Melhores avaliados', public: true },
     { name: 'new', label: 'Novos', public: true },
-    { name: 'mine', label: 'Meus' }, // favoritos / criados por mim / ultimos jogados
-    { name: 'friends', label: 'Amigos' }, // amigos / solicitações / encontrar / criado por amigos
+    { name: 'mine', label: 'Meus' },
+    { name: 'friends', label: 'Amigos' },
     { name: 'ranking', label: 'Ranking' }, // mundial / nacionalidade / semanal
   ];
 
@@ -33,8 +32,10 @@ const Home = () => {
   const friendsTab = tab === 'friends';
   const rankingTab = tab === 'ranking';
 
+  const resetTab = () => setTab('popular');
+
   return (
-    <section className="py-10 flex gap-15">
+    <section className="py-10 flex gap-15 min-h-full">
       <div className="basis-[15%] flex flex-col gap-4 justify-center">
         {tabs
           .filter((tab) => user ?? tab.public)
@@ -49,7 +50,7 @@ const Home = () => {
       </div>
       <div className="basis-[85%] flex flex-col gap-10">
         {gamesTab && <GamesTab tab={tab} />}
-        {friendsTab && <FriendsTab />}
+        {friendsTab && <FriendsTab resetTab={resetTab} />}
         {rankingTab && <RankingTab />}
       </div>
     </section>
