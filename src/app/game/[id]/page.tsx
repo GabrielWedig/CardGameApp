@@ -1,99 +1,108 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import apiClient from '@/services/apiClient';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import type { Game } from '@/types/game';
-import { Card } from '@/types/card';
 import { normalize } from '@/lib/utils';
+import {
+  Card as ShadCard,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Card } from '@/types/card';
+import { toastError } from '@/lib/toast';
+import BoxLoader from '@/components/boxLoader';
+import { useForm } from 'react-hook-form';
+import Form from '@/components/form/form';
+import Input from '@/components/form/input';
+
+interface CardForm {
+  answer: string;
+}
 
 const Game = () => {
   const params = useParams();
   const id = params?.id as string;
 
-  const [game, setGame] = useState<Game>();
-  const [answer, setAnswer] = useState<string>('');
   const [cards, setCards] = useState<Card[]>([]);
   const [tip, setTip] = useState<string>('');
   const [count, setCount] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    setIsLoading(true);
+
     apiClient
-      .get(`games/${id}`)
-      .then((res) => {
-        setGame(res.data);
-        setCards(res.data.cards);
-      })
-      .catch((err) => console.error('Erro ao retornar jogo:', err));
+      .get(`cards?gameId=${id}`)
+      .then((res) => setCards(res.data))
+      .catch((err) => toastError(err.response?.data?.message))
+      .finally(() => setIsLoading(false));
   }, [id]);
 
   const currentCard = cards[0];
 
-  const handleAnswer = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const form = useForm<CardForm>();
 
-    if (normalize(answer) === normalize(currentCard.answer)) {
-      setAnswer('');
+  const onSubmit = (data: CardForm) => {
+    if (normalize(data.answer) === normalize(currentCard.answer)) {
+      form.resetField('answer');
       setTip('');
       setCards(cards.slice(1));
       setCount(!tip ? count + 1 : count);
       return;
     }
 
-    const sameCards = cards.filter((c) => c.id === currentCard.id);
-    setTip((tip) => getNewTip(tip));
+    setTip(getNewTip(tip));
 
+    const sameCards = cards.filter((c) => c.id === currentCard.id);
     if (sameCards.length < 2) {
       setCards((cards) => [...cards, currentCard]);
     }
   };
 
-  const getNewTip = (tip: string) => {
+  const getNewTip = (previousTip = '') => {
     const answer = currentCard.answer;
     const len = answer.length;
+    const tip = previousTip || '*'.repeat(len);
 
-    if (!tip) {
-      return answer[0] + '*'.repeat(len - 2) + answer[len - 1];
-    }
+    const revealCount = Math.ceil(len * 0.2);
 
-    if (!tip.includes('*')) return answer;
+    const hiddenIndices = tip
+      .split('')
+      .map((c, i) => (c === '*' ? i : -1))
+      .filter((i) => i !== -1);
 
-    const newTip = tip.split('');
-    const firstStar = newTip.indexOf('*');
-    const lastStar = newTip.lastIndexOf('*');
+    if (!hiddenIndices.length) return tip;
 
-    if (firstStar < lastStar) {
-      newTip[firstStar] = answer[firstStar];
-      newTip[lastStar] = answer[lastStar];
-    } else {
-      newTip[firstStar] = answer[firstStar];
-    }
+    const revealIndices = hiddenIndices
+      .sort(() => Math.random() - 0.5)
+      .slice(0, revealCount);
 
-    return newTip.join('');
+    return tip
+      .split('')
+      .map((c, i) => (revealIndices.includes(i) ? answer[i] : c))
+      .join('');
   };
 
   return (
-    <section className="flex flex-col justify-center items-center gap-20 py-10 h-screen">
-      <span className="absolute top-20 left-20">
-        {count} / {game?.cards.length}
-      </span>
-      {/* {cards.map((c) => (
-        <>
-          <Image
-            key={c.id}
-            src={c.image_path ?? ''}
-            alt="Bandeira"
-            className="shadow-xl/20"
-            width={225}
-            height={150}
-            priority
-          />
-          <p>{c.answer}</p>
-        </>
-      ))} */}
+    <BoxLoader
+      className="flex flex-col justify-center items-center gap-20 py-10"
+      isLoading={isLoading}
+      qtdData={cards.length}
+    >
+      <span className="text-lg font-semibold">Restam: {cards.length}</span>
+      {currentCard?.text && (
+        <ShadCard>
+          <CardHeader>
+            <CardTitle>Pergunta:</CardTitle>
+          </CardHeader>
+          <CardContent>{currentCard.text}</CardContent>
+        </ShadCard>
+      )}
       {currentCard?.imagePath && (
         <Image
           src={currentCard.imagePath}
@@ -104,16 +113,16 @@ const Game = () => {
           priority
         />
       )}
-      <form className="flex gap-3" onSubmit={handleAnswer}>
-        <Input
-          className="w-[200px]"
-          onChange={(e) => setAnswer(e.target.value)}
-          value={answer}
-        />
+      <Form
+        form={form}
+        onSubmit={onSubmit}
+        className="flex flex-col gap-5 w-[300px]"
+      >
+        <Input name="answer" placeholder="Digite a resposta" />
         <Button type="submit">Responder</Button>
-      </form>
-      {tip && <span>Pista: {tip}</span>}
-    </section>
+      </Form>
+      <div className="h-[21px]">{tip && <span>Pista: {tip}</span>}</div>
+    </BoxLoader>
   );
 };
 
