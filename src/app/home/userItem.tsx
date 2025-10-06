@@ -80,14 +80,12 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <Link href={`profile/${user.name}`}>
-              <Button
-                variant="outline"
-                onClick={() => router.push(`profile/${user.id}`)}
-              >
-                Ver perfil
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              onClick={() => router.push(`profile/${user.name}`)}
+            >
+              Ver perfil
+            </Button>
             {tab === 'friends' && (
               <Button
                 variant="destructive"

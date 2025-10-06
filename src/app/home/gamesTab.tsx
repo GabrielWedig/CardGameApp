@@ -70,7 +70,7 @@ const GamesTab = ({ tab }: GamesTabProps) => {
       </div>
       <BoxLoader
         isLoading={isLoading}
-        qtdData={games.length ?? 0}
+        hasData={!!games.length}
         className="flex flex-col gap-10"
       >
         <div className="flex flex-col gap-2">

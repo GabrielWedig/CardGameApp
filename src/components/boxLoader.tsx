@@ -2,18 +2,19 @@ import { Spinner } from './ui/spinner';
 
 interface BoxLoaderProps {
   isLoading: boolean;
-  className: string;
+
   children: React.ReactNode;
-  qtdData: number;
+  hasData: boolean;
+  className?: string;
 }
 
 const BoxLoader = ({
   children,
   isLoading,
+  hasData,
   className,
-  qtdData,
 }: BoxLoaderProps) => {
-  const nothing = !isLoading && qtdData === 0;
+  const nothing = !isLoading && !hasData;
 
   return (
     <div

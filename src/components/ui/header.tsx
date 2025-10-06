@@ -23,7 +23,7 @@ const Header = () => {
               <span>Lvl. {user.level}</span>
             </div>
             <div className="flex gap-2 self-end">
-              <Link href={'/profile'} className="underline">
+              <Link href={`profile/${user.name}`} className="underline">
                 Ver perfil
               </Link>
               <button className="cursor-pointer underline" onClick={logout}>

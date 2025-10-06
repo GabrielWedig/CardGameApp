@@ -92,7 +92,7 @@ const Game = () => {
     <BoxLoader
       className="flex flex-col justify-center items-center gap-20 py-10"
       isLoading={isLoading}
-      qtdData={cards.length}
+      hasData={!!cards.length}
     >
       <span className="text-lg font-semibold">Restam: {cards.length}</span>
       {currentCard?.text && (

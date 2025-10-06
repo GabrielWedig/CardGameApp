@@ -73,7 +73,7 @@ const FriendsTab = ({ resetTab }: FriendsTabProps) => {
       </div>
       <BoxLoader
         isLoading={isLoading}
-        qtdData={users?.items.length ?? 0}
+        hasData={!!users?.items.length}
         className="flex flex-col gap-10"
       >
         <div className="grid grid-cols-2 gap-2">
