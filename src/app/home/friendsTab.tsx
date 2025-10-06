@@ -26,19 +26,17 @@ const FriendsTab = ({ resetTab }: FriendsTabProps) => {
   const [update, setUpdate] = useState<boolean>(false);
   const [users, setUsers] = useState<Paginated<SearchUser>>();
 
-  const tabs = [
-    { name: 'friends', label: 'Amigos' },
-    { name: 'requests', label: 'Solicitações de amizade' },
-    { name: 'find', label: 'Encontrar pessoas' },
-  ];
+  const tabs = {
+    friends: { label: 'Amigos', url: `users/${user?.id}/friends` },
+    requests: {
+      label: 'Solicitações de amizade',
+      url: `users/${user?.id}/requests`,
+    },
+    find: { label: 'Encontrar pessoas', url: 'users' },
+  };
 
   const limit = 50;
-  const isAccepted = tab === 'friends';
-  const findTab = tab === 'find';
-  const urlFilters = `search=${search}&page=${page}&limit=${limit}`;
-  const url = findTab
-    ? `users?${urlFilters}`
-    : `requests?isAccepted=${isAccepted}&${urlFilters}`;
+  const url = `${tabs[tab].url}?search=${search}&page=${page}&limit=${limit}`;
 
   useEffect(() => {
     setIsLoading(true);
@@ -49,7 +47,7 @@ const FriendsTab = ({ resetTab }: FriendsTabProps) => {
       .then((res) => setUsers(res.data))
       .catch((err) => toastError(err.response?.data?.message))
       .finally(() => setIsLoading(false));
-  }, [tab, search, page, user, url, update, resetTab]);
+  }, [tab, search, page, user, update, resetTab, url]);
 
   const updateUsers = () => setUpdate((update) => !update);
 
@@ -57,12 +55,12 @@ const FriendsTab = ({ resetTab }: FriendsTabProps) => {
     <>
       <div className="flex justify-between items-center">
         <div className="flex gap-5">
-          {tabs.map((tb, idx) => (
+          {Object.entries(tabs).map(([key, value], idx) => (
             <TabItem
               key={idx}
-              name={tb.label}
-              onClick={() => setTab(tb.name as FriendsTab)}
-              isActive={tab === tb.name}
+              name={value.label}
+              onClick={() => setTab(key as FriendsTab)}
+              isActive={tab === key}
             />
           ))}
         </div>

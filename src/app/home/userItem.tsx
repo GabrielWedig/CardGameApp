@@ -10,7 +10,6 @@ import { FriendsTab } from './friendsTab';
 import { useRouter } from 'next/navigation';
 
 interface LoadingBtn {
-  new: boolean;
   reject: boolean;
   accept: boolean;
 }
@@ -24,20 +23,9 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState<LoadingBtn>({
-    new: false,
     reject: false,
     accept: false,
   });
-
-  const handleNew = () => {
-    setIsLoading((btns) => ({ ...btns, new: true }));
-
-    apiClient
-      .post(`/requests`, { receiverId: user.id })
-      .then(() => updateUsers())
-      .catch((err) => toastError(err.response?.data?.message))
-      .finally(() => setIsLoading((btns) => ({ ...btns, new: false })));
-  };
 
   const handleReject = (requestId: number) => {
     setIsLoading((btns) => ({ ...btns, reject: true }));
@@ -59,13 +47,6 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
       .finally(() => setIsLoading((btns) => ({ ...btns, accept: false })));
   };
 
-  const showRejectBtn = tab === 'friends' || user.isFriend;
-  const showRequestBtn = tab === 'find' && !user.requestId;
-  const showAnswerBtns =
-    tab === 'requests' || (user.canAnswer && !user.isFriend);
-  const showCancelBtn =
-    tab === 'find' && user.requestId && !user.isFriend && !user.canAnswer;
-
   return (
     <Card>
       <CardContent className="flex gap-10 items-center">
@@ -81,7 +62,17 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
           <div className="flex justify-between">
             <div className="flex flex-col">
               <span className="text-lg font-semibold">{user.displayName}</span>
-              <span className="text-sm text-gray-500">@{user.name}</span>
+              <div className="flex gap-2 items-center">
+                <Image
+                  src={user.nacionalityPhoto}
+                  alt="Foto da nacionalidade"
+                  width={20}
+                  height={15}
+                  priority
+                  className="w-[20px] h-[15px]"
+                />
+                <span className="text-sm text-gray-500">@{user.name}</span>
+              </div>
             </div>
             <div className="flex flex-col items-center">
               <span className="text-sm text-gray-500">Nível</span>
@@ -97,7 +88,7 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
                 Ver perfil
               </Button>
             </Link>
-            {showRejectBtn && (
+            {tab === 'friends' && (
               <Button
                 variant="destructive"
                 onClick={() => handleReject(user.requestId ?? 0)}
@@ -106,7 +97,7 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
                 Desfazer amizade
               </Button>
             )}
-            {showAnswerBtns && (
+            {tab === 'requests' && (
               <>
                 <Button
                   variant="outline"
@@ -123,24 +114,6 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
                   Recusar
                 </Button>
               </>
-            )}
-            {showRequestBtn && (
-              <Button
-                variant="outline"
-                onClick={handleNew}
-                isLoading={isLoading.new}
-              >
-                Solicitar amizade
-              </Button>
-            )}
-            {showCancelBtn && (
-              <Button
-                variant="destructive"
-                onClick={() => handleReject(user.requestId ?? 0)}
-                isLoading={isLoading.reject}
-              >
-                Cancelar solicitação
-              </Button>
             )}
           </div>
         </div>

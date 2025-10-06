@@ -9,6 +9,4 @@ export interface SearchUser extends User {
   name: string;
   nacionalityPhoto: string;
   requestId?: number;
-  isFriend?: boolean;
-  canAnswer?: boolean;
 }
