@@ -18,12 +18,9 @@ const Header = () => {
       {user ? (
         <div className="flex gap-5 items-center">
           <div className="flex flex-col">
-            <div className="flex gap-5">
-              <span>{user.displayName}</span>
-              <span>Lvl. {user.level}</span>
-            </div>
+            <span>{user.displayName}</span>
             <div className="flex gap-2 self-end">
-              <Link href={`profile/${user.name}`} className="underline">
+              <Link href={`/profile/${user.name}`} className="underline">
                 Ver perfil
               </Link>
               <button className="cursor-pointer underline" onClick={logout}>

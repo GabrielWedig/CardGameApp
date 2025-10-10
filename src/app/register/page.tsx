@@ -9,11 +9,13 @@ import { useForm } from 'react-hook-form';
 import { RegisterForm, registerSchema } from './schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Nationality } from '@/types/nationality';
-import Input from '@/components/form/input';
+import Input, { ChangeInputParams } from '@/components/form/input';
 import Select from '@/components/form/select';
 import Form from '@/components/form/form';
 import { useRouter } from 'next/navigation';
 import { useUserContext } from '@/context/userContext';
+import InputSearch from '@/components/form/inputSearch';
+import { validateName, matchPassword } from './validation';
 
 const Register = () => {
   const [nationalities, setNationalities] = useState<Nationality[]>([]);
@@ -31,9 +33,11 @@ const Register = () => {
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
+    criteriaMode: 'all',
   });
 
-  const { setError, clearErrors, getValues } = form;
+  const { watch } = form;
+  const confirmValue = watch('confirmPassword');
 
   const setToken = (token: string) => {
     localStorage.setItem('accessToken', token);
@@ -52,34 +56,15 @@ const Register = () => {
       .finally(() => setIsLoading(false));
   };
 
-  const validateName = async (name: string) =>
-    await apiClient
-      .get(`users/validate-name?name=${name}`)
-      .then((res) =>
-        res.data.isValid
-          ? clearErrors('name')
-          : setError('name', {
-              message: 'Este nome já está em uso',
-            })
-      )
-      .catch((err) => toastError(err.response?.data?.message));
-
-  const macthPassword = (password: string) =>
-    password === getValues('password')
-      ? clearErrors('confirmPassword')
-      : setError('confirmPassword', {
-          message: 'As senhas não coincidem',
-        });
-
   return (
     <section className="flex flex-col justify-center items-center h-full gap-15 -mt-[100px]">
       <h1 className="text-5xl font-semibold">CardGame!</h1>
       <Form form={form} onSubmit={onSubmit} className="flex flex-col w-[300px]">
-        <Input
+        <InputSearch
           name="name"
           label="Nome"
           placeholder="Digite seu nome único"
-          onChange={validateName}
+          onSearch={validateName}
         />
         <Input
           name="displayName"
@@ -97,7 +82,9 @@ const Register = () => {
           label="Confirme sua senha"
           placeholder="Digite sua senha novamente"
           type="password"
-          onChange={macthPassword}
+          onChange={(params: ChangeInputParams) =>
+            matchPassword(params, confirmValue)
+          }
         />
         <Select
           name="nationalityId"

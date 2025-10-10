@@ -2,15 +2,26 @@ export interface User {
   id: number;
   name: string;
   displayName: string;
-  level: number;
   photo: string;
 }
 
 export interface SearchUser extends User {
-  nacionalityPhoto: string;
+  nationalityPhoto: string;
   requestId?: number;
 }
 
 export interface UserProfile extends User {
-  nacionalityPhoto: string;
+  nationalityPhoto: string;
+  about: string;
+  me: boolean;
+  friend: boolean;
+  requested: boolean;
+  requestedByMe: boolean;
+  canRequest: boolean;
+  stats: UserStats;
+  requestId?: number;
+}
+
+interface UserStats {
+  since: number;
 }

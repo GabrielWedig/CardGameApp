@@ -4,7 +4,6 @@ import { toastError } from '@/lib/toast';
 import apiClient from '@/services/apiClient';
 import { SearchUser } from '@/types/user';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState } from 'react';
 import { FriendsTab } from './friendsTab';
 import { useRouter } from 'next/navigation';
@@ -59,24 +58,18 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
           className="w-[100px] h-[100px] rounded-full"
         />
         <div className="flex flex-col gap-5 flex-1">
-          <div className="flex justify-between">
-            <div className="flex flex-col">
-              <span className="text-lg font-semibold">{user.displayName}</span>
-              <div className="flex gap-2 items-center">
-                <Image
-                  src={user.nacionalityPhoto}
-                  alt="Foto da nacionalidade"
-                  width={20}
-                  height={15}
-                  priority
-                  className="w-[20px] h-[15px]"
-                />
-                <span className="text-sm text-gray-500">@{user.name}</span>
-              </div>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-sm text-gray-500">Nível</span>
-              <span className="text-lg font-semibold">{user.level}</span>
+          <div className="flex flex-col">
+            <span className="text-lg font-semibold">{user.displayName}</span>
+            <div className="flex gap-2 items-center">
+              <Image
+                src={user.nationalityPhoto}
+                alt="Foto da nacionalidade"
+                width={20}
+                height={15}
+                priority
+                className="w-[20px] h-[15px]"
+              />
+              <span className="text-sm text-gray-500">@{user.name}</span>
             </div>
           </div>
           <div className="flex justify-end gap-2">

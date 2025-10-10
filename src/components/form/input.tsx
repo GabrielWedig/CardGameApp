@@ -1,14 +1,21 @@
 'use client';
 
+import { ChangeEvent } from 'react';
 import { Input as InputBase } from '../ui/input';
-import { useFormContext, Path, FieldValues } from 'react-hook-form';
+import { useFormContext, Path, FieldValues, get } from 'react-hook-form';
+
+export interface ChangeInputParams {
+  value: string;
+  onError: (message: string) => void;
+  onClear: () => void;
+}
 
 interface InputProps<TFormValues extends FieldValues> {
   name: Path<TFormValues>;
   label?: string;
   placeholder?: string;
   type?: string;
-  onChange?: (value: string) => void;
+  onChange?: (params: ChangeInputParams) => void;
 }
 
 const Input = <TFormValues extends FieldValues>({
@@ -21,10 +28,21 @@ const Input = <TFormValues extends FieldValues>({
   const {
     register,
     formState: { errors },
+    setError,
+    clearErrors,
   } = useFormContext<TFormValues>();
 
-  const fieldError = errors?.[name];
+  const fieldError = get(errors, name);
   const { onChange: internalOnChange, ...rest } = register(name);
+
+  const onError = (message: string) =>
+    setError(name, { message: message ?? 'Valor inválido' });
+  const onClear = () => clearErrors(name);
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    internalOnChange(event);
+    onChange?.({ value: event.target.value, onError, onClear });
+  };
 
   return (
     <div className="flex flex-col">
@@ -34,10 +52,7 @@ const Input = <TFormValues extends FieldValues>({
         placeholder={placeholder}
         className={`w-[300px] ${fieldError ? 'border-red-500' : 'mb-5'}`}
         {...rest}
-        onChange={(e) => {
-          internalOnChange(e);
-          onChange?.(e.target.value);
-        }}
+        onChange={handleChange}
       />
       {fieldError && (
         <span className="text-red-500 text-sm">
