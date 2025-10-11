@@ -2,16 +2,16 @@ export interface User {
   id: number;
   name: string;
   displayName: string;
-  photo: string;
+  photoUrl: string;
 }
 
 export interface SearchUser extends User {
-  nationalityPhoto: string;
+  nationalityPhotoUrl: string;
   requestId?: number;
 }
 
 export interface UserProfile extends User {
-  nationalityPhoto: string;
+  nationalityPhotoUrl: string;
   about: string;
   me: boolean;
   friend: boolean;

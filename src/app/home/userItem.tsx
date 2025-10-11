@@ -50,7 +50,7 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
     <Card>
       <CardContent className="flex gap-10 items-center">
         <Image
-          src={user.photo}
+          src={user.photoUrl}
           alt="Foto de Perfil"
           width={100}
           height={100}
@@ -62,7 +62,7 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
             <span className="text-lg font-semibold">{user.displayName}</span>
             <div className="flex gap-2 items-center">
               <Image
-                src={user.nationalityPhoto}
+                src={user.nationalityPhotoUrl}
                 alt="Foto da nacionalidade"
                 width={20}
                 height={15}

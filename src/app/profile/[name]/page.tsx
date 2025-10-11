@@ -11,17 +11,23 @@ import { useParams } from 'next/navigation';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { Clock, Pen } from 'lucide-react';
 import { Input as InputShad } from '@/components/ui/input';
-import { uploadImage } from '@/services/cloudinaryClient';
 import Form from '@/components/form/form';
 import { useForm } from 'react-hook-form';
-import { EditForm, editSchema } from './schema';
+import { getEditSchema } from './schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '@/components/form/input';
 import Textarea from '@/components/form/textarea';
+import InputSearch from '@/components/form/inputSearch';
+import z from 'zod';
 
 interface Loading {
   page: boolean;
   edit: boolean;
+}
+
+interface Photo {
+  path: string;
+  file: File;
 }
 
 const Profile = () => {
@@ -35,17 +41,32 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
   const [user, setUser] = useState<UserProfile>();
-  const [updatedPhoto, setUpdatedPhoto] = useState<string>();
+  const [updatedPhoto, setUpdatedPhoto] = useState<Photo>();
+
+  const editSchema = getEditSchema(user?.name ?? '');
+  type EditForm = z.infer<typeof editSchema>;
+
+  const form = useForm<EditForm>({
+    resolver: zodResolver(editSchema),
+  });
+  const { reset } = form;
 
   useEffect(() => {
     setIsLoading((load) => ({ ...load, page: true }));
 
     apiClient
       .get(`/users/${name}/profile`)
-      .then((res) => setUser(res.data))
+      .then((res) => {
+        setUser(res.data);
+        reset({
+          about: res.data?.about,
+          displayName: res.data?.displayName,
+          name: res.data?.name,
+        });
+      })
       .catch((err) => toastError(err.response?.data?.message))
       .finally(() => setIsLoading((load) => ({ ...load, page: false })));
-  }, [name, update]);
+  }, [name, update, reset]);
 
   const stats = [
     { Icon: Clock, label: `Desde ${user?.stats.since}` },
@@ -56,50 +77,36 @@ const Profile = () => {
     // { Icon: Earth, label: 'Top #23 Global' },
   ];
 
-  const form = useForm<EditForm>({
-    resolver: zodResolver(editSchema),
-  });
-
-  const photo = isEditing ? updatedPhoto ?? user?.photo : user?.photo;
-  const { reset, clearErrors, setError, getValues, control } = form;
+  const photo = isEditing
+    ? updatedPhoto?.path ?? user?.photoUrl
+    : user?.photoUrl;
 
   const onSubmit = async (data: EditForm) => {
     setIsLoading((load) => ({ ...load, edit: true }));
-    const payload = { about: data?.about, photo };
 
-    if (data?.file) {
-      const url = await uploadImage(data?.file, 'usersPreset')
-        .then((res) => res.data.secure_url)
-        .catch((err) => toastError(err.response?.data?.message))
-        .finally(() => setIsLoading((load) => ({ ...load, edit: false })));
+    const formData = new FormData();
+    formData.append('about', data.about ?? '');
+    formData.append('name', data.name ?? '');
+    formData.append('displayName', data.displayName ?? '');
+    formData.append('password', data.password ?? '');
 
-      console.log(url);
+    if (updatedPhoto?.file) {
+      formData.append('photo', updatedPhoto.file);
     }
 
-    setUpdate(!update);
+    apiClient
+      .put(`/users/${user?.id}/update`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(() => setUpdate(!update))
+      .catch((err) => toastError(err.response?.data?.message))
+      .finally(() => setIsLoading((load) => ({ ...load, edit: false })));
   };
-
-  const validateName = async (name: string) =>
-    await apiClient
-      .get(`users/validate-name?name=${name}`)
-      .then((res) =>
-        res.data.isValid
-          ? clearErrors('name')
-          : setError('name', { message: 'Este nome já está em uso' })
-      )
-      .catch((err) => toastError(err.response?.data?.message));
-
-  const matchPassword = (password: string) =>
-    password === getValues('password')
-      ? clearErrors('confirmPassword')
-      : setError('confirmPassword', {
-          message: 'As senhas não coincidem',
-        });
 
   const handleChangePhoto = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setUpdatedPhoto(URL.createObjectURL(file));
+      setUpdatedPhoto({ path: URL.createObjectURL(file), file });
     }
   };
 
@@ -127,14 +134,14 @@ const Profile = () => {
         {isEditing && (
           <>
             <InputShad
-              id="photo-upload"
+              id="photoUpload"
               type="file"
               className="hidden"
               accept="image/*"
-              onChange={(e) => handleChangePhoto(e)}
+              onChange={handleChangePhoto}
             />
             <label
-              htmlFor="photo-upload"
+              htmlFor="photoUpload"
               className="absolute bottom-5 right-5 bg-black/60 p-4 rounded-full transition-transform duration-300 hover:scale-110 hover:cursor-pointer shadow-md"
             >
               <Pen size={25} className="text-white" />
@@ -144,11 +151,10 @@ const Profile = () => {
       </div>
       {isEditing ? (
         <Form form={form} onSubmit={onSubmit}>
-          <Input
+          <InputSearch
             name="name"
             label="Nome"
             placeholder="Digite seu nome único"
-            onChange={validateName}
           />
           <Input
             name="displayName"
@@ -171,7 +177,6 @@ const Profile = () => {
             label="Confirme sua senha"
             placeholder="Digite sua senha novamente"
             type="password"
-            onChange={matchPassword}
           />
           <div className="flex gap-2">
             <Button variant="outline" type="button" onClick={handleCancel}>
@@ -186,7 +191,7 @@ const Profile = () => {
             <h1 className="text-4xl">{user?.displayName}</h1>
             <div className="flex gap-2 items-center">
               <Image
-                src={user?.nationalityPhoto ?? ''}
+                src={user?.nationalityPhotoUrl ?? ''}
                 alt="Foto da nacionalidade"
                 width={30}
                 height={25}

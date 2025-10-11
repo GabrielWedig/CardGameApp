@@ -2,20 +2,14 @@
 
 import { ChangeEvent } from 'react';
 import { Input as InputBase } from '../ui/input';
-import { useFormContext, Path, FieldValues, get } from 'react-hook-form';
-
-export interface ChangeInputParams {
-  value: string;
-  onError: (message: string) => void;
-  onClear: () => void;
-}
+import { useFormContext, Path, FieldValues } from 'react-hook-form';
 
 interface InputProps<TFormValues extends FieldValues> {
   name: Path<TFormValues>;
   label?: string;
   placeholder?: string;
   type?: string;
-  onChange?: (params: ChangeInputParams) => void;
+  onChange?: (value: string) => void;
 }
 
 const Input = <TFormValues extends FieldValues>({
@@ -28,20 +22,14 @@ const Input = <TFormValues extends FieldValues>({
   const {
     register,
     formState: { errors },
-    setError,
-    clearErrors,
   } = useFormContext<TFormValues>();
 
-  const fieldError = get(errors, name);
+  const fieldError = errors[name];
   const { onChange: internalOnChange, ...rest } = register(name);
-
-  const onError = (message: string) =>
-    setError(name, { message: message ?? 'Valor inválido' });
-  const onClear = () => clearErrors(name);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     internalOnChange(event);
-    onChange?.({ value: event.target.value, onError, onClear });
+    onChange?.(event.target.value);
   };
 
   return (

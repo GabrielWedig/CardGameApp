@@ -4,17 +4,10 @@ import { Input as InputBase } from '../ui/input';
 import { useFormContext, Path, FieldValues } from 'react-hook-form';
 import { ChangeEvent, useState } from 'react';
 import { Spinner } from '../ui/spinner';
-
-export interface SearchParams {
-  value: string;
-  onError: (message: string) => void;
-  onClear: () => void;
-  onLoaded: () => void;
-}
+import { toastError } from '@/lib/toast';
 
 interface InputSearchProps<TFormValues extends FieldValues> {
   name: Path<TFormValues>;
-  onSearch: (params: SearchParams) => void;
   label?: string;
   placeholder?: string;
   type?: string;
@@ -26,14 +19,12 @@ const InputSearch = <TFormValues extends FieldValues>({
   label,
   placeholder,
   type = 'text',
-  onSearch,
   onChange,
 }: InputSearchProps<TFormValues>) => {
   const {
     register,
     formState: { errors },
-    setError,
-    clearErrors,
+    trigger,
   } = useFormContext<TFormValues>();
 
   const fieldError = errors?.[name];
@@ -45,13 +36,10 @@ const InputSearch = <TFormValues extends FieldValues>({
     setIsLoading(true);
     internalOnChange(event);
     onChange?.(event.target.value);
-    onSearch({ value: event.target.value, onError, onClear, onLoaded });
+    trigger(name)
+      .catch((err) => toastError(err.response?.data?.message))
+      .finally(() => setIsLoading(false));
   };
-
-  const onError = (message: string) =>
-    setError(name, { message: message ?? 'Valor inválido' });
-  const onClear = () => clearErrors(name);
-  const onLoaded = () => setIsLoading(false);
 
   return (
     <div className="flex flex-col">

@@ -9,13 +9,12 @@ import { useForm } from 'react-hook-form';
 import { RegisterForm, registerSchema } from './schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Nationality } from '@/types/nationality';
-import Input, { ChangeInputParams } from '@/components/form/input';
+import Input from '@/components/form/input';
 import Select from '@/components/form/select';
 import Form from '@/components/form/form';
 import { useRouter } from 'next/navigation';
 import { useUserContext } from '@/context/userContext';
 import InputSearch from '@/components/form/inputSearch';
-import { validateName, matchPassword } from './validation';
 
 const Register = () => {
   const [nationalities, setNationalities] = useState<Nationality[]>([]);
@@ -33,11 +32,7 @@ const Register = () => {
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
-    criteriaMode: 'all',
   });
-
-  const { watch } = form;
-  const confirmValue = watch('confirmPassword');
 
   const setToken = (token: string) => {
     localStorage.setItem('accessToken', token);
@@ -64,7 +59,6 @@ const Register = () => {
           name="name"
           label="Nome"
           placeholder="Digite seu nome único"
-          onSearch={validateName}
         />
         <Input
           name="displayName"
@@ -82,9 +76,6 @@ const Register = () => {
           label="Confirme sua senha"
           placeholder="Digite sua senha novamente"
           type="password"
-          onChange={(params: ChangeInputParams) =>
-            matchPassword(params, confirmValue)
-          }
         />
         <Select
           name="nationalityId"

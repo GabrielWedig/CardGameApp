@@ -28,14 +28,15 @@ const Header = () => {
               </button>
             </div>
           </div>
-          <Image
-            src={user.photo}
-            alt="Foto de Perfil"
-            width={40}
-            height={40}
-            priority
-            className="w-auto h-auto rounded-full"
-          />
+          <div className="relative w-14 h-14 rounded-full overflow-hidden">
+            <Image
+              src={user.photoUrl}
+              alt="Foto de Perfil"
+              fill
+              priority
+              className="object-cover"
+            />
+          </div>
         </div>
       ) : (
         <div className="flex gap-5 items-center">
