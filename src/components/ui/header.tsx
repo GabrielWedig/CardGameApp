@@ -17,15 +17,29 @@ const Header = () => {
       </Link>
       {user ? (
         <div className="flex gap-5 items-center">
-          <div className="flex flex-col">
-            <span>{user.displayName}</span>
+          <div className="flex flex-col gap-1 items-end">
+            <span className='pr-4'>{user.displayName}</span>
             <div className="flex gap-2 self-end">
-              <Link href={`/profile/${user.name}`} className="underline">
+              <Button
+                variant="ghost"
+                onClick={() => router.push(`/profile/${user.name}`)}
+              >
                 Ver perfil
-              </Link>
-              <button className="cursor-pointer underline" onClick={logout}>
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  logout();
+                  router.push('/');
+                }}
+              >
                 Sair
-              </button>
+              </Button>
+              <Link href={``} className="underline"></Link>
+              <button
+                className="cursor-pointer underline"
+                onClick={logout}
+              ></button>
             </div>
           </div>
           <div className="relative w-14 h-14 rounded-full overflow-hidden">

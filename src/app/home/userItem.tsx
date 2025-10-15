@@ -7,10 +7,12 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { FriendsTab } from './friendsTab';
 import { useRouter } from 'next/navigation';
+import AlertDialog from '@/components/alertDialog';
 
 interface LoadingBtn {
   reject: boolean;
   accept: boolean;
+  remove: boolean;
 }
 interface UserItemProps {
   user: SearchUser;
@@ -21,42 +23,59 @@ interface UserItemProps {
 const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
   const router = useRouter();
 
-  const [isLoading, setIsLoading] = useState<LoadingBtn>({
+  const [loading, setLoading] = useState<LoadingBtn>({
     reject: false,
     accept: false,
+    remove: false,
   });
+  const [dialog, setDialog] = useState<boolean>(false);
 
   const handleReject = (requestId: number) => {
-    setIsLoading((btns) => ({ ...btns, reject: true }));
+    setLoading((btns) => ({ ...btns, reject: true }));
 
     apiClient
       .delete(`/requests/${requestId}/reject`)
       .then(() => updateUsers())
       .catch((err) => toastError(err.response?.data?.message))
-      .finally(() => setIsLoading((btns) => ({ ...btns, reject: false })));
+      .finally(() => setLoading((btns) => ({ ...btns, reject: false })));
   };
 
   const handleAccept = (requestId: number) => {
-    setIsLoading((btns) => ({ ...btns, accept: true }));
+    setLoading((btns) => ({ ...btns, accept: true }));
 
     apiClient
       .put(`/requests/${requestId}/accept`)
       .then(() => updateUsers())
       .catch((err) => toastError(err.response?.data?.message))
-      .finally(() => setIsLoading((btns) => ({ ...btns, accept: false })));
+      .finally(() => setLoading((btns) => ({ ...btns, accept: false })));
+  };
+
+  const handleRemoveFriend = () => {
+    setLoading((load) => ({ ...load, removeFriend: true }));
+
+    apiClient
+      .delete(`/requests/${user?.requestId}/reject`)
+      .then(() => updateUsers())
+      .catch((err) => toastError(err.response?.data?.message))
+      .finally(() => {
+        setDialog(false);
+        setLoading((load) => ({ ...load, remove: false }));
+      });
   };
 
   return (
     <Card>
       <CardContent className="flex gap-10 items-center">
-        <Image
-          src={user.photoUrl}
-          alt="Foto de Perfil"
-          width={100}
-          height={100}
-          priority
-          className="w-[100px] h-[100px] rounded-full"
-        />
+        <div className="relative w-[100px] h-[100px] rounded-full overflow-hidden">
+          <Image
+            src={user.photoUrl}
+            alt="Foto de Perfil"
+            fill
+            priority
+            className="object-cover"
+          />
+        </div>
+
         <div className="flex flex-col gap-5 flex-1">
           <div className="flex flex-col">
             <span className="text-lg font-semibold">{user.displayName}</span>
@@ -80,27 +99,33 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
               Ver perfil
             </Button>
             {tab === 'friends' && (
-              <Button
-                variant="destructive"
-                onClick={() => handleReject(user.requestId ?? 0)}
-                isLoading={isLoading.reject}
-              >
-                Desfazer amizade
-              </Button>
+              <>
+                <Button variant="destructive" onClick={() => setDialog(true)}>
+                  Desfazer Amizade
+                </Button>
+                <AlertDialog
+                  open={dialog}
+                  onOpenChange={() => setDialog(!dialog)}
+                  title="Você tem certeza?"
+                  description={`Tem certeza que deseja desfazer amizade com ${user.displayName}?`}
+                  onContinue={handleRemoveFriend}
+                  isLoading={loading.remove}
+                />
+              </>
             )}
             {tab === 'requests' && (
               <>
                 <Button
                   variant="outline"
                   onClick={() => handleAccept(user.requestId ?? 0)}
-                  isLoading={isLoading.accept}
+                  isLoading={loading.accept}
                 >
                   Aceitar
                 </Button>
                 <Button
                   variant="destructive"
                   onClick={() => handleReject(user.requestId ?? 0)}
-                  isLoading={isLoading.reject}
+                  isLoading={loading.reject}
                 >
                   Recusar
                 </Button>

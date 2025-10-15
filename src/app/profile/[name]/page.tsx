@@ -7,7 +7,7 @@ import { toastError } from '@/lib/toast';
 import apiClient from '@/services/apiClient';
 import { UserProfile } from '@/types/user';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { Clock, Pen } from 'lucide-react';
 import { Input as InputShad } from '@/components/ui/input';
@@ -19,10 +19,21 @@ import Input from '@/components/form/input';
 import Textarea from '@/components/form/textarea';
 import InputSearch from '@/components/form/inputSearch';
 import z from 'zod';
+import AlertDialog from '@/components/alertDialog';
+import { useUserContext } from '@/context/userContext';
 
 interface Loading {
   page: boolean;
   edit: boolean;
+  excludeProfile: boolean;
+  removeRequest: boolean;
+  acceptRequest: boolean;
+  request: boolean;
+}
+
+interface Dialog {
+  removeRequest: boolean;
+  excludeProfile: boolean;
 }
 
 interface Photo {
@@ -34,10 +45,22 @@ const Profile = () => {
   const params = useParams();
   const name = params?.name as string;
 
-  const [isLoading, setIsLoading] = useState<Loading>({
+  const { logout, setUserData } = useUserContext();
+  const router = useRouter();
+
+  const [loading, setLoading] = useState<Loading>({
     page: false,
     edit: false,
+    excludeProfile: false,
+    removeRequest: false,
+    acceptRequest: false,
+    request: false,
   });
+  const [dialog, setDialog] = useState<Dialog>({
+    removeRequest: false,
+    excludeProfile: false,
+  });
+
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
   const [user, setUser] = useState<UserProfile>();
@@ -52,7 +75,7 @@ const Profile = () => {
   const { reset } = form;
 
   useEffect(() => {
-    setIsLoading((load) => ({ ...load, page: true }));
+    setLoading((load) => ({ ...load, page: true }));
 
     apiClient
       .get(`/users/${name}/profile`)
@@ -65,7 +88,7 @@ const Profile = () => {
         });
       })
       .catch((err) => toastError(err.response?.data?.message))
-      .finally(() => setIsLoading((load) => ({ ...load, page: false })));
+      .finally(() => setLoading((load) => ({ ...load, page: false })));
   }, [name, update, reset]);
 
   const stats = [
@@ -82,7 +105,7 @@ const Profile = () => {
     : user?.photoUrl;
 
   const onSubmit = async (data: EditForm) => {
-    setIsLoading((load) => ({ ...load, edit: true }));
+    setLoading((load) => ({ ...load, edit: true }));
 
     const formData = new FormData();
     formData.append('about', data.about ?? '');
@@ -95,12 +118,15 @@ const Profile = () => {
     }
 
     apiClient
-      .put(`/users/${user?.id}/update`, formData, {
+      .put(`/users/${user?.id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
-      .then(() => setUpdate(!update))
+      .then(() => {
+        setUpdate(!update);
+        setUserData();
+      })
       .catch((err) => toastError(err.response?.data?.message))
-      .finally(() => setIsLoading((load) => ({ ...load, edit: false })));
+      .finally(() => setLoading((load) => ({ ...load, edit: false })));
   };
 
   const handleChangePhoto = (event: ChangeEvent<HTMLInputElement>) => {
@@ -116,13 +142,80 @@ const Profile = () => {
     reset();
   };
 
+  const handleExcludeProfile = () =>
+    setDialog((dialog) => ({ ...dialog, excludeProfile: true }));
+
+  const handleExcludeProfileChange = () =>
+    setDialog((dialog) => ({
+      ...dialog,
+      excludeProfile: !dialog.excludeProfile,
+    }));
+
+  const handleRemoveFriend = () =>
+    setDialog((dialog) => ({ ...dialog, removeRequest: true }));
+
+  const handleRemoveFriendChange = () =>
+    setDialog((dialog) => ({
+      ...dialog,
+      removeRequest: !dialog.removeRequest,
+    }));
+
+  const excludeProfile = () => {
+    setLoading((load) => ({ ...load, excludeProfile: true }));
+
+    apiClient
+      .delete(`/users/${user?.id}`)
+      .then(() => {
+        logout();
+        router.push('/');
+      })
+      .catch((err) => toastError(err.response?.data?.message))
+      .finally(() => {
+        setDialog((dialog) => ({ ...dialog, excludeProfile: false }));
+        setLoading((load) => ({ ...load, excludeProfile: false }));
+      });
+  };
+
+  const handleRemoveRequest = () => {
+    setLoading((load) => ({ ...load, removeRequest: true }));
+
+    apiClient
+      .delete(`/requests/${user?.requestId}/reject`)
+      .then(() => setUpdate(!update))
+      .catch((err) => toastError(err.response?.data?.message))
+      .finally(() => {
+        setDialog((dialog) => ({ ...dialog, excludeProfile: false }));
+        setLoading((load) => ({ ...load, removeRequest: false }));
+      });
+  };
+
+  const handleAcceptRequest = () => {
+    setLoading((load) => ({ ...load, acceptRequest: true }));
+
+    apiClient
+      .put(`/requests/${user?.requestId}/accept`)
+      .then(() => setUpdate(!update))
+      .catch((err) => toastError(err.response?.data?.message))
+      .finally(() => setLoading((load) => ({ ...load, acceptRequest: false })));
+  };
+
+  const handleRequest = () => {
+    setLoading((load) => ({ ...load, request: true }));
+
+    apiClient
+      .post('/requests')
+      .then(() => setUpdate(!update))
+      .catch((err) => toastError(err.response?.data?.message))
+      .finally(() => setLoading((load) => ({ ...load, request: false })));
+  };
+
   return (
     <BoxLoader
       className="py-10 min-h-full flex gap-20"
-      isLoading={isLoading.page}
+      isLoading={loading.page}
       hasData={!!user}
     >
-      <div className="relative block w-[350px] h-[350px] shrink-0">
+      <div className="relative w-[350px] h-[350px] shrink-0">
         <Image
           src={photo ?? ''}
           alt="Foto de Perfil"
@@ -178,12 +271,31 @@ const Profile = () => {
             placeholder="Digite sua senha novamente"
             type="password"
           />
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-5">
             <Button variant="outline" type="button" onClick={handleCancel}>
               Cancelar
             </Button>
             <Button type="submit">Confirmar Edição</Button>
           </div>
+          {user?.me && (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleExcludeProfile}
+              >
+                Excluir Perfil
+              </Button>
+              <AlertDialog
+                open={dialog.excludeProfile}
+                onOpenChange={handleExcludeProfileChange}
+                title="Você tem certeza?"
+                description="Tem certeza que deseja excluir seu perfil?"
+                onContinue={excludeProfile}
+                isLoading={loading.excludeProfile}
+              />
+            </>
+          )}
         </Form>
       ) : (
         <div className="flex flex-col gap-5 w-full">
@@ -201,29 +313,61 @@ const Profile = () => {
               <span className="text text-gray-500">@{user?.name}</span>
             </div>
           </div>
-
           <div className="flex gap-2">
             {user?.canRequest && (
-              <Button variant="outline">Solicitar Amizade</Button>
+              <Button
+                variant="outline"
+                onClick={handleRequest}
+                isLoading={loading.request}
+              >
+                Solicitar Amizade
+              </Button>
             )}
             {user?.requestedByMe && (
-              <Button variant="outline">Cancelar Solicitação</Button>
+              <Button
+                variant="outline"
+                onClick={handleRemoveRequest}
+                isLoading={loading.removeRequest}
+              >
+                Cancelar Solicitação
+              </Button>
             )}
             {user?.friend && (
-              <Button variant="destructive">Desfazer Amizade</Button>
+              <>
+                <Button variant="destructive" onClick={handleRemoveFriend}>
+                  Desfazer Amizade
+                </Button>
+                <AlertDialog
+                  open={dialog.removeRequest}
+                  onOpenChange={handleRemoveFriendChange}
+                  title="Você tem certeza?"
+                  description={`Tem certeza que deseja desfazer amizade com ${user.displayName}?`}
+                  onContinue={handleRemoveRequest}
+                  isLoading={loading.removeRequest}
+                />
+              </>
             )}
             {user?.me && (
-              <>
-                <Button variant="outline" onClick={() => setIsEditing(true)}>
-                  Editar Perfil
-                </Button>
-                <Button variant="destructive">Excluir Perfil</Button>
-              </>
+              <Button variant="outline" onClick={() => setIsEditing(true)}>
+                Editar Perfil
+              </Button>
             )}
             {user?.requested && (
               <>
-                <Button variant="outline">Aceitar</Button>
-                <Button variant="destructive">Recusar</Button>
+                <Button
+                  variant="outline"
+                  onClick={handleAcceptRequest}
+                  isLoading={loading.acceptRequest}
+                >
+                  Aceitar
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleRemoveRequest}
+                  isLoading={loading.removeRequest}
+                >
+                  Recusar
+                </Button>
               </>
             )}
           </div>
