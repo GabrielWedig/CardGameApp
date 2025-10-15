@@ -103,9 +103,9 @@ const Game = () => {
           <CardContent>{currentCard.text}</CardContent>
         </ShadCard>
       )}
-      {currentCard?.imagePath && (
+      {currentCard?.imageUrl && (
         <Image
-          src={currentCard.imagePath}
+          src={currentCard.imageUrl}
           alt="Bandeira"
           className="shadow-xl/20 w-auto h-auto"
           width={225}

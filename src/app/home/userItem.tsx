@@ -81,7 +81,7 @@ const UserItem = ({ user, updateUsers, tab }: UserItemProps) => {
             <span className="text-lg font-semibold">{user.displayName}</span>
             <div className="flex gap-2 items-center">
               <Image
-                src={user.nationalityPhotoUrl}
+                src={user.nationalityImageUrl}
                 alt="Foto da nacionalidade"
                 width={20}
                 height={15}

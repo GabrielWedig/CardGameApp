@@ -203,7 +203,7 @@ const Profile = () => {
     setLoading((load) => ({ ...load, request: true }));
 
     apiClient
-      .post('/requests')
+      .post('/requests', { receiverId: user?.id })
       .then(() => setUpdate(!update))
       .catch((err) => toastError(err.response?.data?.message))
       .finally(() => setLoading((load) => ({ ...load, request: false })));
@@ -275,7 +275,9 @@ const Profile = () => {
             <Button variant="outline" type="button" onClick={handleCancel}>
               Cancelar
             </Button>
-            <Button type="submit">Confirmar Edição</Button>
+            <Button type="submit" isLoading={loading.edit}>
+              Confirmar Edição
+            </Button>
           </div>
           {user?.me && (
             <>
@@ -303,7 +305,7 @@ const Profile = () => {
             <h1 className="text-4xl">{user?.displayName}</h1>
             <div className="flex gap-2 items-center">
               <Image
-                src={user?.nationalityPhotoUrl ?? ''}
+                src={user?.nationalityImageUrl ?? ''}
                 alt="Foto da nacionalidade"
                 width={30}
                 height={25}

@@ -1,7 +1,7 @@
 export interface Card {
   id: number;
   answer: string;
-  imagePath: string;
+  imageUrl: string;
   audioPath: string;
   videoPath: string;
   text: string;

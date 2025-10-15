@@ -6,12 +6,12 @@ export interface User {
 }
 
 export interface SearchUser extends User {
-  nationalityPhotoUrl: string;
+  nationalityImageUrl: string;
   requestId?: number;
 }
 
 export interface UserProfile extends User {
-  nationalityPhotoUrl: string;
+  nationalityImageUrl: string;
   about: string;
   me: boolean;
   friend: boolean;
