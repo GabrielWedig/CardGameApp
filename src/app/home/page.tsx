@@ -6,6 +6,8 @@ import TabItem from '@/components/tabItem';
 import GamesTab from './gamesTab';
 import FriendsTab from './friendsTab';
 import RankingTab from './rankingTab';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 export type Tab =
   | 'popular'
@@ -17,6 +19,8 @@ export type Tab =
 
 const Home = () => {
   const { user } = useUserContext();
+  const router = useRouter();
+
   const [tab, setTab] = useState<Tab>('popular');
 
   const tabs = [
@@ -47,6 +51,7 @@ const Home = () => {
               isActive={tab === tb.name}
             />
           ))}
+        {user && <Button onClick={() => router.push('/game/new')}>Novo Jogo</Button>}
       </div>
       <div className="basis-[85%] flex flex-col gap-10">
         {gamesTab && <GamesTab tab={tab} />}

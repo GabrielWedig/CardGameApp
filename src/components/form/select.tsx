@@ -38,7 +38,6 @@ const Select = <TFormValues extends FieldValues>({
   return (
     <div className="flex flex-col">
       {label && <label className="mb-1">{label}</label>}
-
       <Controller
         name={name}
         control={control}
