@@ -80,7 +80,7 @@ const Game = () => {
 
   return (
     <BoxLoader
-      className="flex flex-col justify-center items-center gap-20 py-10"
+      className="flex flex-col justify-center items-center gap-20 h-screen -mt-[144px]"
       isLoading={isLoading}
       hasData={!!cards.length}
     >

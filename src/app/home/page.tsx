@@ -8,7 +8,6 @@ import FriendsTab from './friendsTab';
 import RankingTab from './rankingTab';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import Container from '@/components/container';
 
 export type Tab =
   | 'popular'
@@ -40,7 +39,7 @@ const Home = () => {
   const resetTab = () => setTab('popular');
 
   return (
-    <Container className="flex gap-15 min-h-full">
+    <section className="flex gap-15 min-h-full">
       <div className="basis-[15%] flex flex-col gap-4 justify-center">
         {tabs
           .filter((tab) => user ?? tab.public)
@@ -61,7 +60,7 @@ const Home = () => {
         {friendsTab && <FriendsTab resetTab={resetTab} />}
         {rankingTab && <RankingTab />}
       </div>
-    </Container>
+    </section>
   );
 };
 

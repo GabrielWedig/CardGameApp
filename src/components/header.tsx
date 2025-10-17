@@ -1,24 +1,24 @@
 'use client';
 
 import { useUserContext } from '@/context/userContext';
-import { Button } from './button';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Button } from './ui/button';
 
 const Header = () => {
   const { user, logout } = useUserContext();
   const router = useRouter();
 
   return (
-    <header className="px-50 pt-8 pb-5 flex justify-between items-center h-[100px]">
+    <header className="my-10 flex justify-between items-center h-[64px] z-1">
       <Link href={'/'}>
         <h1 className="text-3xl font-semibold">CardGame!</h1>
       </Link>
       {user ? (
         <div className="flex gap-5 items-center">
           <div className="flex flex-col gap-1 items-end">
-            <span className='pr-4'>{user.displayName}</span>
+            <span className="pr-4">{user.displayName}</span>
             <div className="flex gap-2 self-end">
               <Button
                 variant="ghost"

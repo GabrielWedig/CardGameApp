@@ -22,7 +22,6 @@ import z from 'zod';
 import AlertDialog from '@/components/alertDialog';
 import { useUserContext } from '@/context/userContext';
 import { ImageType } from '@/types/common';
-import Container from '@/components/container';
 
 interface Loading {
   page: boolean;
@@ -207,186 +206,188 @@ const Profile = () => {
   };
 
   return (
-    <BoxLoader isLoading={loading.page} hasData={!!user}>
-      <Container className="min-h-full flex gap-20">
-        <div className="relative w-[350px] h-[350px] shrink-0">
-          <Image
-            src={photo ?? ''}
-            alt="Foto de Perfil"
-            fill
-            priority
-            sizes="350px"
-            className="object-cover rounded-full shadow-xl/5"
+    <BoxLoader
+      isLoading={loading.page}
+      hasData={!!user}
+      className="min-h-full flex gap-20"
+    >
+      <div className="relative w-[350px] h-[350px] shrink-0">
+        <Image
+          src={photo ?? ''}
+          alt="Foto de Perfil"
+          fill
+          priority
+          sizes="350px"
+          className="object-cover rounded-full shadow-xl/5"
+        />
+        {isEditing && (
+          <>
+            <InputShad
+              id="photoUpload"
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={handleChangePhoto}
+            />
+            <label
+              htmlFor="photoUpload"
+              className="absolute bottom-5 right-5 bg-black/60 p-4 rounded-full transition-transform duration-300 hover:scale-110 hover:cursor-pointer shadow-md"
+            >
+              <Pen size={25} className="text-white" />
+            </label>
+          </>
+        )}
+      </div>
+      {isEditing ? (
+        <Form form={form} onSubmit={onSubmit}>
+          <InputSearch
+            name="name"
+            label="Nome"
+            placeholder="Digite seu nome único"
           />
-          {isEditing && (
+          <Input
+            name="displayName"
+            label="Nome de exibição"
+            placeholder="Digite seu nome"
+          />
+          <Textarea
+            name="about"
+            label="Sobre"
+            placeholder="Digite algo sobre você"
+          />
+          <Input
+            name="password"
+            label="Senha"
+            placeholder="Digite sua senha"
+            type="password"
+          />
+          <Input
+            name="confirmPassword"
+            label="Confirme sua senha"
+            placeholder="Digite sua senha novamente"
+            type="password"
+          />
+          <div className="flex gap-2 mb-5">
+            <Button variant="outline" type="button" onClick={handleCancel}>
+              Cancelar
+            </Button>
+            <Button type="submit" isLoading={loading.edit}>
+              Confirmar Edição
+            </Button>
+          </div>
+          {user?.me && (
             <>
-              <InputShad
-                id="photoUpload"
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={handleChangePhoto}
-              />
-              <label
-                htmlFor="photoUpload"
-                className="absolute bottom-5 right-5 bg-black/60 p-4 rounded-full transition-transform duration-300 hover:scale-110 hover:cursor-pointer shadow-md"
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleExcludeProfile}
               >
-                <Pen size={25} className="text-white" />
-              </label>
+                Excluir Perfil
+              </Button>
+              <AlertDialog
+                open={dialog.excludeProfile}
+                onOpenChange={handleExcludeProfileChange}
+                title="Você tem certeza?"
+                description="Tem certeza que deseja excluir seu perfil?"
+                onContinue={excludeProfile}
+                isLoading={loading.excludeProfile}
+              />
             </>
           )}
-        </div>
-        {isEditing ? (
-          <Form form={form} onSubmit={onSubmit}>
-            <InputSearch
-              name="name"
-              label="Nome"
-              placeholder="Digite seu nome único"
-            />
-            <Input
-              name="displayName"
-              label="Nome de exibição"
-              placeholder="Digite seu nome"
-            />
-            <Textarea
-              name="about"
-              label="Sobre"
-              placeholder="Digite algo sobre você"
-            />
-            <Input
-              name="password"
-              label="Senha"
-              placeholder="Digite sua senha"
-              type="password"
-            />
-            <Input
-              name="confirmPassword"
-              label="Confirme sua senha"
-              placeholder="Digite sua senha novamente"
-              type="password"
-            />
-            <div className="flex gap-2 mb-5">
-              <Button variant="outline" type="button" onClick={handleCancel}>
-                Cancelar
-              </Button>
-              <Button type="submit" isLoading={loading.edit}>
-                Confirmar Edição
-              </Button>
+        </Form>
+      ) : (
+        <div className="flex flex-col gap-5 w-full">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-4xl">{user?.displayName}</h1>
+            <div className="flex gap-2 items-center">
+              <Image
+                src={user?.nationalityImageUrl ?? ''}
+                alt="Foto da nacionalidade"
+                width={30}
+                height={25}
+                priority
+                className="w-[20px] h-[15px]"
+              />
+              <span className="text text-gray-500">@{user?.name}</span>
             </div>
-            {user?.me && (
+          </div>
+          <div className="flex gap-2">
+            {user?.canRequest && (
+              <Button
+                variant="outline"
+                onClick={handleRequest}
+                isLoading={loading.request}
+              >
+                Solicitar Amizade
+              </Button>
+            )}
+            {user?.requestedByMe && (
+              <Button
+                variant="outline"
+                onClick={handleRemoveRequest}
+                isLoading={loading.removeRequest}
+              >
+                Cancelar Solicitação
+              </Button>
+            )}
+            {user?.friend && (
               <>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={handleExcludeProfile}
-                >
-                  Excluir Perfil
+                <Button variant="destructive" onClick={handleRemoveFriend}>
+                  Desfazer Amizade
                 </Button>
                 <AlertDialog
-                  open={dialog.excludeProfile}
-                  onOpenChange={handleExcludeProfileChange}
+                  open={dialog.removeRequest}
+                  onOpenChange={handleRemoveFriendChange}
                   title="Você tem certeza?"
-                  description="Tem certeza que deseja excluir seu perfil?"
-                  onContinue={excludeProfile}
-                  isLoading={loading.excludeProfile}
+                  description={`Tem certeza que deseja desfazer amizade com ${user.displayName}?`}
+                  onContinue={handleRemoveRequest}
+                  isLoading={loading.removeRequest}
                 />
               </>
             )}
-          </Form>
-        ) : (
-          <div className="flex flex-col gap-5 w-full">
-            <div className="flex flex-col gap-1">
-              <h1 className="text-4xl">{user?.displayName}</h1>
-              <div className="flex gap-2 items-center">
-                <Image
-                  src={user?.nationalityImageUrl ?? ''}
-                  alt="Foto da nacionalidade"
-                  width={30}
-                  height={25}
-                  priority
-                  className="w-[20px] h-[15px]"
-                />
-                <span className="text text-gray-500">@{user?.name}</span>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              {user?.canRequest && (
+            {user?.me && (
+              <Button variant="outline" onClick={() => setIsEditing(true)}>
+                Editar Perfil
+              </Button>
+            )}
+            {user?.requested && (
+              <>
                 <Button
                   variant="outline"
-                  onClick={handleRequest}
-                  isLoading={loading.request}
+                  onClick={handleAcceptRequest}
+                  isLoading={loading.acceptRequest}
                 >
-                  Solicitar Amizade
+                  Aceitar
                 </Button>
-              )}
-              {user?.requestedByMe && (
                 <Button
-                  variant="outline"
+                  variant="destructive"
                   onClick={handleRemoveRequest}
                   isLoading={loading.removeRequest}
                 >
-                  Cancelar Solicitação
+                  Recusar
                 </Button>
-              )}
-              {user?.friend && (
-                <>
-                  <Button variant="destructive" onClick={handleRemoveFriend}>
-                    Desfazer Amizade
-                  </Button>
-                  <AlertDialog
-                    open={dialog.removeRequest}
-                    onOpenChange={handleRemoveFriendChange}
-                    title="Você tem certeza?"
-                    description={`Tem certeza que deseja desfazer amizade com ${user.displayName}?`}
-                    onContinue={handleRemoveRequest}
-                    isLoading={loading.removeRequest}
-                  />
-                </>
-              )}
-              {user?.me && (
-                <Button variant="outline" onClick={() => setIsEditing(true)}>
-                  Editar Perfil
-                </Button>
-              )}
-              {user?.requested && (
-                <>
-                  <Button
-                    variant="outline"
-                    onClick={handleAcceptRequest}
-                    isLoading={loading.acceptRequest}
-                  >
-                    Aceitar
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={handleRemoveRequest}
-                    isLoading={loading.removeRequest}
-                  >
-                    Recusar
-                  </Button>
-                </>
-              )}
-            </div>
+              </>
+            )}
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text text-gray-500">Sobre mim:</span>
+            <span className="w-[70%]">{user?.about ?? 'Nada por aqui.'}</span>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text text-gray-500">Estatísticas:</span>
             <div className="flex flex-col gap-2">
-              <span className="text text-gray-500">Sobre mim:</span>
-              <span className="w-[70%]">{user?.about ?? 'Nada por aqui.'}</span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text text-gray-500">Estatísticas:</span>
-              <div className="flex flex-col gap-2">
-                {stats.map((stat, idx) => (
-                  <Card key={idx} className="py-1 w-max">
-                    <CardContent className="flex gap-1 justify-center items-center px-3">
-                      <stat.Icon size={15} />
-                      <span className="text-sm">{stat.label}</span>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              {stats.map((stat, idx) => (
+                <Card key={idx} className="py-1 w-max">
+                  <CardContent className="flex gap-1 justify-center items-center px-3">
+                    <stat.Icon size={15} />
+                    <span className="text-sm">{stat.label}</span>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
-        )}
-      </Container>
+        </div>
+      )}
     </BoxLoader>
   );
 };
