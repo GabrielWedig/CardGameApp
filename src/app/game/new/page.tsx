@@ -4,6 +4,7 @@ import { useState } from 'react';
 import TabItem from '@/components/tabItem';
 import GameTab from './gameTab';
 import CardTab from './cardTab';
+import Container from '@/components/container';
 
 type Tab = 'card' | 'game';
 
@@ -18,7 +19,7 @@ const NewGame = () => {
   ];
 
   return (
-    <section className="py-10 flex flex-col gap-8">
+    <Container className="flex flex-col gap-8">
       <div className="flex gap-5">
         {tabs.map((tb, idx) => (
           <TabItem
@@ -33,7 +34,7 @@ const NewGame = () => {
         {tab === 'game' && <GameTab />}
         {tab === 'card' && <CardTab />}
       </div>
-    </section>
+    </Container>
   );
 };
 

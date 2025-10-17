@@ -43,7 +43,7 @@ const Card = ({ readonly, form, onSubmit, tip, text, imageUrl }: CardProps) => {
         {readonly && (
           <div className="flex flex-col gap-5 w-[300px]">
             <ShadInput readOnly disabled placeholder="Digite a resposta" />
-            <Button>Responder</Button>
+            <Button disabled>Responder</Button>
           </div>
         )}
         {form && !!onSubmit && (

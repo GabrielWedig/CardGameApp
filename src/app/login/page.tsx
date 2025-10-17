@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUserContext } from '@/context/userContext';
 import { useState } from 'react';
+import Container from '@/components/container';
 
 export default function Login() {
   const router = useRouter();
@@ -40,7 +41,10 @@ export default function Login() {
   };
 
   return (
-    <section className="flex flex-col justify-center items-center h-full gap-15 -mt-[100px]">
+    <Container
+      className="flex flex-col justify-center items-center h-full gap-15"
+      ignoreHeader
+    >
       <h1 className="text-5xl font-semibold">CardGame!</h1>
       <Form form={form} onSubmit={onSubmit} className="flex flex-col w-[300px]">
         <Input name="name" label="Nome" placeholder="Digite seu nome" />
@@ -60,6 +64,6 @@ export default function Login() {
           Faça cadastro
         </Link>
       </div>
-    </section>
+    </Container>
   );
 }

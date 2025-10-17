@@ -8,6 +8,7 @@ import FriendsTab from './friendsTab';
 import RankingTab from './rankingTab';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import Container from '@/components/container';
 
 export type Tab =
   | 'popular'
@@ -39,7 +40,7 @@ const Home = () => {
   const resetTab = () => setTab('popular');
 
   return (
-    <section className="py-10 flex gap-15 min-h-full">
+    <Container className="flex gap-15 min-h-full">
       <div className="basis-[15%] flex flex-col gap-4 justify-center">
         {tabs
           .filter((tab) => user ?? tab.public)
@@ -51,14 +52,16 @@ const Home = () => {
               isActive={tab === tb.name}
             />
           ))}
-        {user && <Button onClick={() => router.push('/game/new')}>Novo Jogo</Button>}
+        {user && (
+          <Button onClick={() => router.push('/game/new')}>Novo Jogo</Button>
+        )}
       </div>
       <div className="basis-[85%] flex flex-col gap-10">
         {gamesTab && <GamesTab tab={tab} />}
         {friendsTab && <FriendsTab resetTab={resetTab} />}
         {rankingTab && <RankingTab />}
       </div>
-    </section>
+    </Container>
   );
 };
 

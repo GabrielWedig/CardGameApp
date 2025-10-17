@@ -15,6 +15,7 @@ import Form from '@/components/form/form';
 import { useRouter } from 'next/navigation';
 import { useUserContext } from '@/context/userContext';
 import InputSearch from '@/components/form/inputSearch';
+import Container from '@/components/container';
 
 const Register = () => {
   const [nationalities, setNationalities] = useState<Nationality[]>([]);
@@ -52,7 +53,10 @@ const Register = () => {
   };
 
   return (
-    <section className="flex flex-col justify-center items-center h-full gap-15 -mt-[100px]">
+    <Container
+      className="flex flex-col justify-center items-center h-full gap-15"
+      ignoreHeader
+    >
       <h1 className="text-5xl font-semibold">CardGame!</h1>
       <Form form={form} onSubmit={onSubmit} className="flex flex-col w-[300px]">
         <InputSearch
@@ -93,7 +97,7 @@ const Register = () => {
           Faça login
         </Link>
       </div>
-    </section>
+    </Container>
   );
 };
 

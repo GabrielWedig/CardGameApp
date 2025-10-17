@@ -32,7 +32,7 @@ export default function RootLayout({
       >
         <UserProvider>
           <Header />
-          <main className="px-50 h-[calc(100vh-100px)]">{children}</main>
+          <main className="px-50 h-screen -mt-[100px]">{children}</main>
           <Toaster richColors />
         </UserProvider>
       </body>
