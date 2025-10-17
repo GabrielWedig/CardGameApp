@@ -8,16 +8,20 @@ interface Option {
   label: string;
 }
 
+type Type = 'column' | 'row';
+
 interface RadioGroupProps<TFormValues extends FieldValues> {
   name: Path<TFormValues>;
   label?: string;
   options: Option[];
+  type?: Type;
 }
 
 const RadioGroup = <TFormValues extends FieldValues>({
   name,
   label,
   options,
+  type = 'column',
 }: RadioGroupProps<TFormValues>) => {
   const {
     control,
@@ -39,7 +43,9 @@ const RadioGroup = <TFormValues extends FieldValues>({
               const parsed = Number(val);
               field.onChange(isNaN(parsed) ? val : parsed);
             }}
-            className={`gap-1 ${!fieldError && 'mb-5'}`}
+            className={`gap-1 ${!fieldError && 'mb-5'} flex ${
+              type === 'column' ? 'flex-col' : 'gap-3'
+            }`}
           >
             {options.map((opt) => (
               <div className="flex gap-2 items-center" key={opt.value}>

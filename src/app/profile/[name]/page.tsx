@@ -21,6 +21,7 @@ import InputSearch from '@/components/form/inputSearch';
 import z from 'zod';
 import AlertDialog from '@/components/alertDialog';
 import { useUserContext } from '@/context/userContext';
+import { ImageType } from '@/types/common';
 
 interface Loading {
   page: boolean;
@@ -34,11 +35,6 @@ interface Loading {
 interface Dialog {
   removeRequest: boolean;
   excludeProfile: boolean;
-}
-
-interface Photo {
-  path: string;
-  file: File;
 }
 
 const Profile = () => {
@@ -64,7 +60,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
   const [user, setUser] = useState<UserProfile>();
-  const [updatedPhoto, setUpdatedPhoto] = useState<Photo>();
+  const [updatedPhoto, setUpdatedPhoto] = useState<ImageType>();
 
   const editSchema = getEditSchema(user?.name ?? '');
   type EditForm = z.infer<typeof editSchema>;

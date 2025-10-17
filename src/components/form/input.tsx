@@ -38,7 +38,7 @@ const Input = <TFormValues extends FieldValues>({
       <InputBase
         type={type}
         placeholder={placeholder}
-        className={`w-[300px] ${fieldError ? 'border-red-500' : 'mb-5'}`}
+        className={fieldError ? 'border-red-500' : 'mb-5'}
         {...rest}
         onChange={handleChange}
       />

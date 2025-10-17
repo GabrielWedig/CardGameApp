@@ -4,3 +4,8 @@ export interface Paginated<T> {
   page: number;
   items: T[];
 }
+
+export interface ImageType {
+  path: string;
+  file: File;
+}

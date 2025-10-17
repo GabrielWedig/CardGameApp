@@ -42,7 +42,7 @@ export default function Login() {
   return (
     <section className="flex flex-col justify-center items-center h-full gap-15 -mt-[100px]">
       <h1 className="text-5xl font-semibold">CardGame!</h1>
-      <Form form={form} onSubmit={onSubmit} className="flex flex-col">
+      <Form form={form} onSubmit={onSubmit} className="flex flex-col w-[300px]">
         <Input name="name" label="Nome" placeholder="Digite seu nome" />
         <Input
           name="password"

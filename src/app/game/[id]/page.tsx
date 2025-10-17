@@ -1,26 +1,17 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import apiClient from '@/services/apiClient';
-import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import type { Game } from '@/types/game';
 import { normalize } from '@/lib/utils';
-import {
-  Card as ShadCard,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Card } from '@/types/card';
+import { Card as CardType } from '@/types/card';
 import { toastError } from '@/lib/toast';
 import BoxLoader from '@/components/boxLoader';
 import { useForm } from 'react-hook-form';
-import Form from '@/components/form/form';
-import Input from '@/components/form/input';
+import Card from '@/components/card';
 
-interface CardForm {
+export interface CardForm {
   answer: string;
 }
 
@@ -28,7 +19,7 @@ const Game = () => {
   const params = useParams();
   const id = params?.id as string;
 
-  const [cards, setCards] = useState<Card[]>([]);
+  const [cards, setCards] = useState<CardType[]>([]);
   const [tip, setTip] = useState<string>('');
   const [count, setCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -44,7 +35,6 @@ const Game = () => {
   }, [id]);
 
   const currentCard = cards[0];
-
   const form = useForm<CardForm>();
 
   const onSubmit = (data: CardForm) => {
@@ -95,33 +85,14 @@ const Game = () => {
       hasData={!!cards.length}
     >
       <span className="text-lg font-semibold">Restam: {cards.length}</span>
-      {currentCard?.text && (
-        <ShadCard>
-          <CardHeader>
-            <CardTitle>Pergunta:</CardTitle>
-          </CardHeader>
-          <CardContent>{currentCard.text}</CardContent>
-        </ShadCard>
-      )}
-      {currentCard?.imageUrl && (
-        <Image
-          src={currentCard.imageUrl}
-          alt="Bandeira"
-          className="shadow-xl/20 w-auto h-auto"
-          width={225}
-          height={150}
-          priority
-        />
-      )}
-      <Form
+      <Card
         form={form}
         onSubmit={onSubmit}
-        className="flex flex-col gap-5 w-[300px]"
-      >
-        <Input name="answer" placeholder="Digite a resposta" />
-        <Button type="submit">Responder</Button>
-      </Form>
-      <div className="h-[21px]">{tip && <span>Pista: {tip}</span>}</div>
+        readonly={false}
+        tip={tip}
+        imageUrl={currentCard?.imageUrl}
+        text={currentCard?.text}
+      />
     </BoxLoader>
   );
 };
