@@ -14,7 +14,7 @@ interface InputSearchProps<TFormValues extends FieldValues> {
   onChange?: (value: string) => void;
 }
 
-const InputSearch = <TFormValues extends FieldValues>({
+const SearchInput = <TFormValues extends FieldValues>({
   name,
   label,
   placeholder,
@@ -63,4 +63,4 @@ const InputSearch = <TFormValues extends FieldValues>({
   );
 };
 
-export default InputSearch;
+export default SearchInput;

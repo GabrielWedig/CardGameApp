@@ -14,7 +14,7 @@ import Select from '@/components/form/select';
 import Form from '@/components/form/form';
 import { useRouter } from 'next/navigation';
 import { useUserContext } from '@/context/userContext';
-import InputSearch from '@/components/form/inputSearch';
+import SearchInput from '@/components/form/searchInput';
 
 const Register = () => {
   const [nationalities, setNationalities] = useState<Nationality[]>([]);
@@ -55,7 +55,7 @@ const Register = () => {
     <section className="flex flex-col justify-center items-center h-screen gap-15 -mt-[144px]">
       <h1 className="text-5xl font-semibold">CardGame!</h1>
       <Form form={form} onSubmit={onSubmit} className="flex flex-col w-[300px]">
-        <InputSearch
+        <SearchInput
           name="name"
           label="Nome"
           placeholder="Digite seu nome único"

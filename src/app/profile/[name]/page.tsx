@@ -17,7 +17,7 @@ import { getEditSchema } from './schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Input from '@/components/form/input';
 import Textarea from '@/components/form/textarea';
-import InputSearch from '@/components/form/inputSearch';
+import SearchInput from '@/components/form/searchInput';
 import z from 'zod';
 import AlertDialog from '@/components/alertDialog';
 import { useUserContext } from '@/context/userContext';
@@ -241,7 +241,7 @@ const Profile = () => {
       </div>
       {isEditing ? (
         <Form form={form} onSubmit={onSubmit}>
-          <InputSearch
+          <SearchInput
             name="name"
             label="Nome"
             placeholder="Digite seu nome único"
