@@ -9,7 +9,7 @@ import { Input as ShadInput } from './ui/input';
 import { Button } from './ui/button';
 import Form from './form/form';
 import Input from './form/input';
-import { CardForm } from '@/app/game/[id]/page';
+import { CardForm } from '@/app/game/[id]/play/page';
 import { UseFormReturn } from 'react-hook-form';
 
 interface CardProps {

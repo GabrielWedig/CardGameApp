@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 
 const GameItem = (game: Game) => {
   return (
-    <Link href={`/game/${game.id}`}>
+    <Link href={`/game/${game.id}/play`}>
       <Card>
         <CardContent className="flex justify-between items-center">
           <div className="flex gap-4">

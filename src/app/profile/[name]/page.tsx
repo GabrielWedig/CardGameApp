@@ -3,7 +3,7 @@
 import BoxLoader from '@/components/boxLoader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { toastError } from '@/lib/toast';
+import { toastError, toastSuccess } from '@/lib/toast';
 import apiClient from '@/services/apiClient';
 import { UserProfile } from '@/types/user';
 import Image from 'next/image';
@@ -75,12 +75,12 @@ const Profile = () => {
 
     apiClient
       .get(`/users/${name}/profile`)
-      .then((res) => {
-        setUser(res.data);
+      .then(({ data }) => {
+        setUser(data);
         reset({
-          about: res.data?.about,
-          displayName: res.data?.displayName,
-          name: res.data?.name,
+          about: data?.about,
+          displayName: data?.displayName,
+          name: data?.name,
         });
       })
       .catch((err) => toastError(err.response?.data?.message))
@@ -120,6 +120,7 @@ const Profile = () => {
       .then(() => {
         setUpdate(!update);
         setUserData();
+        toastSuccess('Usuário atualizado');
       })
       .catch((err) => toastError(err.response?.data?.message))
       .finally(() => setLoading((load) => ({ ...load, edit: false })));

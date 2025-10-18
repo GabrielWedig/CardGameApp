@@ -1,5 +1,4 @@
 import { useForm } from 'react-hook-form';
-import { NewCardForm, newCardSchema } from './schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input as InputShad } from '@/components/ui/input';
 import RadioGroup from '@/components/form/radio';
@@ -10,24 +9,29 @@ import { ImageType } from '@/types/common';
 import { Textarea } from '@/components/ui/textarea';
 import Input from '@/components/form/input';
 import Card from '@/components/card';
+import { CardForm, cardSchema } from './schema';
+
+interface CardTabProps {
+  gameId: string;
+}
 
 interface Question {
   text: string | null;
   image: ImageType | null;
 }
 
-const CardTab = () => {
+const CardTab = ({ gameId }: CardTabProps) => {
   const [question, setQuestion] = useState<Question>({
     text: null,
     image: null,
   });
 
-  const form = useForm<NewCardForm>({
+  const form = useForm<CardForm>({
     defaultValues: { type: 'text' },
-    resolver: zodResolver(newCardSchema),
+    resolver: zodResolver(cardSchema),
   });
 
-  const onSubmit = async (data: NewCardForm) => {
+  const onSubmit = async (data: CardForm) => {
     console.log(data);
   };
 

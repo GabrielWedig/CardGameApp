@@ -1,14 +1,14 @@
 import z from 'zod';
 
-export const newGameSchema = z.object({
+export const gameSchema = z.object({
   name: z.string().min(1, 'Nome obrigatório'),
   visibility: z.enum(['public', 'private', 'friends']),
 });
 
-export const newCardSchema = z.object({
+export const cardSchema = z.object({
   type: z.enum(['text', 'image']),
   answer: z.string().min(1, 'Resposta obrigatória'),
 });
 
-export type NewGameForm = z.infer<typeof newGameSchema>;
-export type NewCardForm = z.infer<typeof newCardSchema>;
+export type GameForm = z.infer<typeof gameSchema>;
+export type CardForm = z.infer<typeof cardSchema>;
